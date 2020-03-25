@@ -18,12 +18,6 @@ public class QuestionController {
         return questionService.findAll();
     }
 
-    @GetMapping("/question")
-    public String getQuestion() {
-        return "hellloo";
-    }
-
-
     @PostMapping("/questions")
     public Question createQuestion(@Valid @RequestBody Question question) {
         return questionService.save(question);

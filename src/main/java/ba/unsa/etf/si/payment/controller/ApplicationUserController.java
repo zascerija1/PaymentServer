@@ -8,6 +8,7 @@ import ba.unsa.etf.si.payment.repository.QuestionRepository;
 import ba.unsa.etf.si.payment.service.ApplicationUserService;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -27,7 +28,14 @@ public class ApplicationUserController {
 
     @GetMapping("/{userId}")
     public ApplicationUser getUserByUserId(@PathVariable Long userId) {
+
         return applicationUserService.find(userId);
+    }
+
+    @GetMapping("/all")
+    public List<ApplicationUser> getUsers() {
+
+        return applicationUserService.getAll();
     }
 
     @PostMapping("/{questionId}/register")

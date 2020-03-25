@@ -35,7 +35,7 @@ public class ApplicationUser extends AuditModel{
     @NotBlank
     private String password;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "answer_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Answer answer;
