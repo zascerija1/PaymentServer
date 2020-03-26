@@ -87,7 +87,6 @@ public class AuthController {
                     HttpStatus.BAD_REQUEST);
         }
 
-        //todo If we decide to keep email unique --> loging in with email
         if(userRepository.existsByEmail(signUpRequest.getEmail())) {
             return new ResponseEntity(new ApiResponse(false, "Email Address already in use!"),
                     HttpStatus.BAD_REQUEST);
