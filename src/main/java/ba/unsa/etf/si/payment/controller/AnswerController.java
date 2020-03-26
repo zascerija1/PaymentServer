@@ -6,6 +6,7 @@ import ba.unsa.etf.si.payment.model.Answer;
 import ba.unsa.etf.si.payment.service.AnswerService;
 import ba.unsa.etf.si.payment.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
@@ -22,11 +23,13 @@ public class AnswerController {
         this.questionService = questionService;
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/questions/{questionId}/answers")
     public List<Answer> getAnswersByQuestionId(@PathVariable Long questionId) {
         return answerService.find(questionId);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/questions/{questionId}/answers")
     public Answer addAnswer(@PathVariable Long questionId,
                             @Valid @RequestBody Answer answer) {
