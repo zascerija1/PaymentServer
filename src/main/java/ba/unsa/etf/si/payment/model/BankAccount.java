@@ -3,6 +3,7 @@ package ba.unsa.etf.si.payment.model;
 
 import ba.unsa.etf.si.payment.annotation.CardValidation;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.Check;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "bank_accounts")
+@Check( constraints = "balance >= 0")
 public class BankAccount extends AuditModel {
 
     @Id
@@ -41,6 +43,9 @@ public class BankAccount extends AuditModel {
     @Length(min = 16, max = 16)
     @CardValidation(message = "Card number is not valid!")
     private String cardNumber;
+
+    @Column(name = "balance", nullable = false)
+    private Double balance;
 
     public Long getId() {
         return id;
@@ -89,4 +94,8 @@ public class BankAccount extends AuditModel {
     public void setCardNumber(String cardNumber) {
         this.cardNumber = cardNumber;
     }
+
+    public Double getBalance() { return balance; }
+
+    public void setBalance(Double balance) { this.balance = balance; }
 }

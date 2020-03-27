@@ -10,6 +10,7 @@ import ba.unsa.etf.si.payment.response.BankAccountDataResponse;
 import ba.unsa.etf.si.payment.response.DeleteAccountResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
 import ba.unsa.etf.si.payment.security.UserPrincipal;
+import ba.unsa.etf.si.payment.service.ApplicationUserService;
 import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
 import org.springframework.security.access.annotation.Secured;
@@ -23,11 +24,13 @@ import java.util.List;
 public class BankAccountController {
     private final BankAccountUserService bankAccountUserService;
     private final BankAccountService bankAccountService;
+    private final ApplicationUserService applicationUserService;
 
 
-    public BankAccountController(BankAccountUserService bankAccountUserService, BankAccountService bankAccountService) {
+    public BankAccountController(BankAccountUserService bankAccountUserService, BankAccountService bankAccountService, ApplicationUserService applicationUserService) {
         this.bankAccountUserService = bankAccountUserService;
         this.bankAccountService = bankAccountService;
+        this.applicationUserService = applicationUserService;
     }
 
     //All accounts that belong to current user
@@ -46,6 +49,13 @@ public class BankAccountController {
 
         if(!bankAccountUserService.findAllByBankAccount_CardNumber(bankAccounts.get(0).getCardNumber()).isEmpty())
             throw new ResourceNotFoundException("Bank account is in use!");
+
+        //If user doesn't match account owner
+        BankAccount acc = bankAccounts.get(0);
+        ApplicationUser currUser = applicationUserService.find(currentUser.getId());
+        if(!acc.getAccountOwner().equals(currUser.getFirstName()+" "+currUser.getLastName())){
+            return new AccountResponse(false, "User and account owner do not match");
+        }
 
 
         BankAccountUser bankAccountUser=new BankAccountUser();
