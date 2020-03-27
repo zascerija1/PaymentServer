@@ -1,6 +1,7 @@
 package ba.unsa.etf.si.payment.model;
 
 
+import ba.unsa.etf.si.payment.annotation.CardValidation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.Length;
 
@@ -33,10 +34,12 @@ public class BankAccount extends AuditModel {
 
     @Column(columnDefinition = "text")
     @Length(min = 3, max = 3)
+    @CardValidation(message = "Card validation code is not valid!")
     private String cvc;
 
     @Column(columnDefinition = "text")
     @Length(min = 16, max = 16)
+    @CardValidation(message = "Card number is not valid!")
     private String cardNumber;
 
     public Long getId() {
