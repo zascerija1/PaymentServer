@@ -41,19 +41,12 @@ public class BankAccountController {
     public AccountResponse addBankAccount(@Valid @RequestBody BankAccount bankAccount, @CurrentUser UserPrincipal currentUser) {
         List<BankAccount> bankAccounts=bankAccountService.find(bankAccount.getCvc(), bankAccount.getCardNumber());
         if(bankAccounts.isEmpty()){
-            throw new ResourceNotFoundException("Bank account not valid");
+            throw new ResourceNotFoundException("Bank account is not valid!");
         }
 
-        //Uzmemo BankAccount ac=bankAccounts.get(0);
-        //uzmemo id
-        //i onda provjerimo ima li u banaccountusser vec neki red sa tim idem bankaccount-a
-        //ako ima baciti izuzetak
-        //todo check if the bank account is already in use
+        if(!bankAccountUserService.findAllByBankAccount_CardNumber(bankAccounts.get(0).getCardNumber()).isEmpty())
+            throw new ResourceNotFoundException("Bank account is in use!");
 
-        //todo Here we should add validation of cvc and cardNumer
-        //Add validation class in validation package
-        //and validate it using java regex
-        //If the test fails return new Account Response(false, "Wrong card or cvc format");
 
         BankAccountUser bankAccountUser=new BankAccountUser();
         ApplicationUser user=new ApplicationUser();

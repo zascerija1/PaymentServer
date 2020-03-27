@@ -28,7 +28,7 @@ public class BankAccountUserService {
                 .map(bankAccountUser -> {
                     BankAccount bankAccount=bankAccountUser.getBankAccount();
                     //Very important!!!
-                    //we send bankaccountuserid, because we want do delete a row in that table
+                    //we send bankAccountUserId, because we want do delete a row in that table
                     //not a bank account which  actually doesn't belong to our system
                     return new BankAccountDataResponse(bankAccountUser.getId(), bankAccount.getAccountOwner(),
                             bankAccount.getBankName(), bankAccount.getExpiryDate(), bankAccount.getCardNumber());
@@ -43,4 +43,8 @@ public class BankAccountUserService {
     public boolean existsByIdAndUserId(Long accId, Long userId){
         return bankAccountUserRepository.existsByIdAndApplicationUser_Id(accId,userId);
     }
+    public List<BankAccountUser> findAllByBankAccount_CardNumber(String cardNumber){
+        return bankAccountUserRepository.findAllByBankAccount_CardNumber(cardNumber);
+    }
+
 }
