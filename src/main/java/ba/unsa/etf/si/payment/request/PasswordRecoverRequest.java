@@ -2,14 +2,14 @@ package ba.unsa.etf.si.payment.request;
 
 import javax.validation.constraints.NotBlank;
 
-public class PasswordRequest {
+public class PasswordRecoverRequest {
     @NotBlank
     private String usernameOrEmail;
 
     @NotBlank
     private String answer;
 
-    public PasswordRequest(String usernameOrEmail, String answer) {
+    public PasswordRecoverRequest(String usernameOrEmail, String answer) {
         this.usernameOrEmail = usernameOrEmail;
         this.answer = answer;
     }
