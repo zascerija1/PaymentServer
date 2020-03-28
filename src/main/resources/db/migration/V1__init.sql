@@ -66,6 +66,25 @@ CREATE TABLE IF NOT EXISTS application_users
         ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS public.bank_accounts
+(
+    id bigint NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    account_owner text COLLATE pg_catalog."default",
+    bank_name text COLLATE pg_catalog."default",
+    card_number text COLLATE pg_catalog."default",
+    cvc text COLLATE pg_catalog."default",
+    expiry_date timestamp without time zone NOT NULL,
+    CONSTRAINT bank_accounts_pkey PRIMARY KEY (id)
+);
+
+
 
 INSERT INTO roles (id, name) VALUES (1, 'ROLE_ADMIN') ON CONFLICT ON CONSTRAINT roles_pkey DO NOTHING;
 INSERT INTO roles (id, name) VALUES (2, 'ROLE_USER') ON CONFLICT ON CONSTRAINT roles_pkey DO NOTHING;
+
+INSERT INTO bank_accounts (id, created_at, updated_at, account_owner,bank_name, card_number, cvc, expiry_date)
+VALUES (1, new Timestamp(System.currentTimeMillis()),new Timestamp(System.currentTimeMillis()),
+        'Dzan Tabakovic', '1234567898767895' ) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
