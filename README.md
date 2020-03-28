@@ -1,4 +1,4 @@
-# Paymant Server
+# Payment Server
 
 > Payment server is one part of information system for selling and charging products and services which is a big student project. This server is directly connected to the Payment Dashboard Web App, built using React, and Pay Mobile App, built using React Native, and to the Main server. The role of the Payment server is to enable payment and monitor all users transactions.
 
