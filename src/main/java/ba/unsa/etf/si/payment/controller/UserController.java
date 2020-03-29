@@ -45,6 +45,7 @@ public class UserController {
         return new UserIdentityAvailability(isAvailable);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/{username}")
     public UserProfileResponse getUserProfile(@PathVariable(value = "username") String username) {
         ApplicationUser user = applicationUserRepository.findByUsername(username)
