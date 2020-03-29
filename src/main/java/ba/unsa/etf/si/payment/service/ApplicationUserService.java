@@ -6,6 +6,8 @@ import ba.unsa.etf.si.payment.repository.ApplicationUserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 @Service
 public class ApplicationUserService {
@@ -26,5 +28,21 @@ public class ApplicationUserService {
     }
     public ApplicationUser save(ApplicationUser applicationUser) {
         return  applicationUserRepository.save(applicationUser);
+    }
+
+    public ApplicationUser getUserByUsernameOrEmail(String usernameOrEmail){
+        ApplicationUser user=new ApplicationUser();
+        if(!applicationUserRepository.existsByUsername(usernameOrEmail)) {
+            if(!applicationUserRepository.existsByEmail(usernameOrEmail)) {
+               return null;
+            }
+            else{
+                user=applicationUserRepository.findByEmail(usernameOrEmail).get();
+            }
+        }
+        else {
+            user=applicationUserRepository.findByUsername(usernameOrEmail).get();
+        }
+        return user;
     }
 }

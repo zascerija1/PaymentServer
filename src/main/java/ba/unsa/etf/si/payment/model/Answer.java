@@ -12,15 +12,14 @@ public class Answer extends AuditModel {
     @GeneratedValue(generator = "answer_generator")
     @SequenceGenerator(
             name = "answer_generator",
-            sequenceName = "answer_sequence",
-            initialValue = 1000
+            sequenceName = "answer_sequence"
     )
     private Long id;
 
     @Column(columnDefinition = "text")
     private String text;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "question_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
