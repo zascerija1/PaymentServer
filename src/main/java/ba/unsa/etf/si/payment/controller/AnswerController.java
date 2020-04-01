@@ -23,13 +23,13 @@ public class AnswerController {
         this.questionService = questionService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/questions/{questionId}/answers")
     public List<Answer> getAnswersByQuestionId(@PathVariable Long questionId) {
         return answerService.find(questionId);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/questions/{questionId}/answers")
     public Answer addAnswer(@PathVariable Long questionId,
                             @Valid @RequestBody Answer answer) {

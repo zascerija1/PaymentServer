@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/user/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public UserSummaryResponse getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         UserSummaryResponse userSummary = new UserSummaryResponse(currentUser.getId(), currentUser.getFirstName(), currentUser.getLastName(), currentUser.getUsername(), currentUser.getEmail());
         return userSummary;
@@ -45,7 +45,7 @@ public class UserController {
         return new UserIdentityAvailability(isAvailable);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/users/{username}")
     public UserProfileResponse getUserProfile(@PathVariable(value = "username") String username) {
         ApplicationUser user = applicationUserRepository.findByUsername(username)
