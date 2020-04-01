@@ -4,6 +4,8 @@ package ba.unsa.etf.si.payment.model;
 import ba.unsa.etf.si.payment.annotation.CardValidation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -26,8 +28,10 @@ public class BankAccount extends AuditModel {
     @Column(columnDefinition = "text")
     private String  accountOwner;
 
-    @Column(columnDefinition = "text")
-    private String  bankName;
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "bank_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Bank bank;
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern="dd.MM.yyyy")

@@ -92,6 +92,11 @@ public class AuthController {
                     HttpStatus.BAD_REQUEST);
         }
 
+        if(signUpRequest.getAnswer()==null || signUpRequest.getAnswer().getText().isEmpty()){
+            return new ResponseEntity(new ApiResponse(false, "Answer text must not be empty!"),
+                    HttpStatus.BAD_REQUEST);
+        }
+
         // Creating user's account
         ApplicationUser user = new ApplicationUser(signUpRequest.getFirstName(),signUpRequest.getLastName(), signUpRequest.getUsername(),
                 signUpRequest.getEmail(), signUpRequest.getPassword(), signUpRequest.getAnswer());
