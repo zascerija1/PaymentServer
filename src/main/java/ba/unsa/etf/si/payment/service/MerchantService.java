@@ -16,4 +16,8 @@ public class MerchantService {
     public List<Merchant> find(String merchantName){
         return merchantRepository.findByMerchantName(merchantName);
     }
+
+    public Merchant save(Merchant merchant){ return merchantRepository.save(merchant);}
+
+    public void delete(Long id){ merchantRepository.deleteById(id);}
 }

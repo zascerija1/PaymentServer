@@ -13,7 +13,12 @@ public class TransactionService {
     public TransactionService(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
     }
-    List<Transaction> findByMerchantName(String merchantName){
+
+    public List<Transaction> findByMerchantName(String merchantName){
         return transactionRepository.findAllByMerchant_MerchantName(merchantName);
     }
+
+    public  Transaction save(Transaction transaction){ return transactionRepository.save(transaction); }
+
+    public void delete(Long id){ transactionRepository.deleteById(id);}
 }
