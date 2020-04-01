@@ -71,6 +71,7 @@ public class BankAccountUserService {
 
         totalMoney = totalMoney - amountToPay;
         bankAccountUser.getBankAccount().setBalance(totalMoney);
+        save(bankAccountUser);
         return new PaymentResponse(HttpStatus.OK, "Payment successful!");
     }
 
