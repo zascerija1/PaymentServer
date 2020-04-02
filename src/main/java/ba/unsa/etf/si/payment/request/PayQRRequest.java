@@ -8,15 +8,15 @@ public class PayQRRequest {
     private Boolean proceed;
 
     @NotBlank
-    private Integer bankAccount;
+    private Long bankAccountId;
 
     @NotBlank
-    private Long transactionID;
+    private Long transactionId;
 
-    public PayQRRequest(@NotBlank Boolean proceed, @NotBlank Integer bankAccount, @NotBlank Long transactionID) {
+    public PayQRRequest(@NotBlank Boolean proceed, @NotBlank Long bankAccountId, @NotBlank Long transactionId) {
         this.proceed = proceed;
-        this.bankAccount = bankAccount;
-        this.transactionID = transactionID;
+        this.bankAccountId = bankAccountId;
+        this.transactionId = transactionId;
     }
 
     public Boolean getProceed() {
@@ -27,19 +27,19 @@ public class PayQRRequest {
         this.proceed = proceed;
     }
 
-    public Integer getBankAccount() {
-        return bankAccount;
+    public Long getBankAccountId() {
+        return bankAccountId;
     }
 
-    public void setBankAccount(Integer bankAccount) {
-        this.bankAccount = bankAccount;
+    public void setBankAccountId(Long bankAccountId) {
+        this.bankAccountId = bankAccountId;
     }
 
-    public Long getTransactionID() {
-        return transactionID;
+    public Long getTransactionId() {
+        return transactionId;
     }
 
-    public void setTransactionID(Long transactionID) {
-        this.transactionID = transactionID;
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
     }
 }

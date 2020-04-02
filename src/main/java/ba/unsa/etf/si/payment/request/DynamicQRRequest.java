@@ -7,7 +7,7 @@ public class DynamicQRRequest {
     //todo adjust to cash register server...
 
     @NotBlank
-    private Long cashRegisterBankAccountID;
+    private Long receiptId;
 
     @NotBlank
     private String businessName;
@@ -16,28 +16,21 @@ public class DynamicQRRequest {
     private String service;
 
     @NotBlank
-    private Double amount;
+    private Double totalPrice;
 
     @NotBlank
     private Boolean proceed;
 
-    private Long bankAccountID;
+    @NotBlank
+    private Long bankAccountId;
 
-    public DynamicQRRequest(@NotBlank Long cashRegisterBankAccountID, @NotBlank String businessName, @NotBlank String service, @NotBlank Double amount, @NotBlank Boolean proceed, Long bankAccountID) {
-        this.cashRegisterBankAccountID = cashRegisterBankAccountID;
+    public DynamicQRRequest(@NotBlank Long receiptId, @NotBlank String businessName, @NotBlank String service, @NotBlank Double amount, @NotBlank Boolean proceed, Long bankAccountID) {
+        this.receiptId = receiptId;
         this.businessName = businessName;
         this.service = service;
-        this.amount = amount;
+        this.totalPrice = amount;
         this.proceed = proceed;
-        this.bankAccountID = bankAccountID;
-    }
-
-    public Long getCashRegisterBankAccountID() {
-        return cashRegisterBankAccountID;
-    }
-
-    public void setCashRegisterBankAccountID(Long cashRegisterBankAccountID) {
-        this.cashRegisterBankAccountID = cashRegisterBankAccountID;
+        this.bankAccountId = bankAccountID;
     }
 
     public String getBusinessName() {
@@ -56,12 +49,12 @@ public class DynamicQRRequest {
         this.service = service;
     }
 
-    public Double getAmount() {
-        return amount;
+    public Double getTotalPrice() {
+        return totalPrice;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public Boolean getProceed() {
@@ -72,11 +65,19 @@ public class DynamicQRRequest {
         this.proceed = proceed;
     }
 
-    public Long getBankAccountID() {
-        return bankAccountID;
+    public Long getBankAccountId() {
+        return bankAccountId;
     }
 
-    public void setBankAccountID(Long bankAccountID) {
-        this.bankAccountID = bankAccountID;
+    public void setBankAccountId(Long bankAccountId) {
+        this.bankAccountId = bankAccountId;
+    }
+
+    public Long getReceiptId() {
+        return receiptId;
+    }
+
+    public void setReceiptId(Long receiptId) {
+        this.receiptId = receiptId;
     }
 }
