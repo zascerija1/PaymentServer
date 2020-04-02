@@ -7,23 +7,21 @@ public class StaticQRRequest {
     //todo adjust to cash register server...
 
     @NotBlank
-    private Long cashRegisterBankAccountID;
+    private Long cashRegisterId;
+
+    @NotBlank
+    private Long officeId;
 
     @NotBlank
     private String businessName;
 
-    public StaticQRRequest(@NotBlank Long cashRegisterBankAccountID, @NotBlank String businessName) {
-        this.cashRegisterBankAccountID = cashRegisterBankAccountID;
+    public StaticQRRequest(@NotBlank Long cashRegisterId, @NotBlank Long officeId, @NotBlank String businessName) {
+        this.cashRegisterId = cashRegisterId;
+        this.officeId = officeId;
         this.businessName = businessName;
     }
 
-    public Long getCashRegisterBankAccountID() {
-        return cashRegisterBankAccountID;
-    }
 
-    public void setCashRegisterBankAccountID(Long cashRegisterBankAccountID) {
-        this.cashRegisterBankAccountID = cashRegisterBankAccountID;
-    }
 
     public String getBusinessName() {
         return businessName;
@@ -31,5 +29,21 @@ public class StaticQRRequest {
 
     public void setBusinessName(String businessName) {
         this.businessName = businessName;
+    }
+
+    public Long getOfficeId() {
+        return officeId;
+    }
+
+    public void setOfficeId(Long officeId) {
+        this.officeId = officeId;
+    }
+
+    public Long getCashRegisterId() {
+        return cashRegisterId;
+    }
+
+    public void setCashRegisterId(Long cashRegisterId) {
+        this.cashRegisterId = cashRegisterId;
     }
 }

@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "transactions")
-@Check(constraints = "amount >= 0")
+@Check(constraints = "total_price >= 0")
 public class Transaction extends AuditModel {
     @Id
     @GeneratedValue(generator = "transaction_generator")
@@ -21,7 +21,7 @@ public class Transaction extends AuditModel {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "bank_account_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private  BankAccountUser bankAccountUser;
+    private  BankAccount bankAccount;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "merchant_id")
@@ -33,13 +33,14 @@ public class Transaction extends AuditModel {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ApplicationUser applicationUser;
 
-    @Column(name = "amount", nullable = false)
-    private Double amount;
+    @Column(name = "total_price", nullable = false)
+    private Double totalPrice;
 
     @Column(columnDefinition = "text")
-    private String description;
+    private String service;
 
-    private Long receipt;
+    @Column(columnDefinition = "text")
+    private String receiptId;
 
 
     public Long getId() {
@@ -48,14 +49,6 @@ public class Transaction extends AuditModel {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public BankAccountUser getBankAccountUser() {
-        return bankAccountUser;
-    }
-
-    public void setBankAccountUser(BankAccountUser bankAccountUser) {
-        this.bankAccountUser = bankAccountUser;
     }
 
     public Merchant getMerchant() {
@@ -74,27 +67,36 @@ public class Transaction extends AuditModel {
         this.applicationUser = applicationUser;
     }
 
-    public Double getAmount() {
-        return amount;
+    public Double getTotalPrice() {
+        return totalPrice;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
+    public void setTotalPrice(Double amount) {
+        this.totalPrice = amount;
     }
 
-    public String getDescription() {
-        return description;
+    public String getService() {
+        return service;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setService(String service) {
+        this.service = service;
     }
 
-    public Long getReceipt() {
-        return receipt;
+
+    public BankAccount getBankAccount() {
+        return bankAccount;
     }
 
-    public void setReceipt(Long receipt) {
-        this.receipt = receipt;
+    public void setBankAccount(BankAccount bankAccount) {
+        this.bankAccount = bankAccount;
+    }
+
+    public String getReceiptId() {
+        return receiptId;
+    }
+
+    public void setReceiptId(String receiptId) {
+        this.receiptId = receiptId;
     }
 }

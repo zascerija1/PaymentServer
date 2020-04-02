@@ -1,12 +1,12 @@
 package ba.unsa.etf.si.payment.response;
 
-public class TransactionQRResponse {
+public class TransactionSubmitResponse {
 
     private Long transactionID;
     private Double amount;
     private String service;
 
-    public TransactionQRResponse(Long transactionID, Double amount, String service) {
+    public TransactionSubmitResponse(Long transactionID, Double amount, String service) {
         this.transactionID = transactionID;
         this.amount = amount;
         this.service = service;

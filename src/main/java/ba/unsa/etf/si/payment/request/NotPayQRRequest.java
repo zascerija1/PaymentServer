@@ -4,17 +4,17 @@ import javax.validation.constraints.NotBlank;
 
 public class NotPayQRRequest {
 
-    //todo made this, but might delete later if we decide to have one rute for paying confirmation...
+    //todo made this, but might delete later if we decide to have one route for paying confirmation...
 
     @NotBlank
     private Boolean proceed;
 
     @NotBlank
-    private Long transactionID;
+    private Long transactionId;
 
-    public NotPayQRRequest(@NotBlank Boolean proceed, @NotBlank Long transactionID) {
+    public NotPayQRRequest(@NotBlank Boolean proceed, @NotBlank Long transactionId) {
         this.proceed = proceed;
-        this.transactionID = transactionID;
+        this.transactionId = transactionId;
     }
 
     public Boolean getProceed() {
@@ -25,11 +25,11 @@ public class NotPayQRRequest {
         this.proceed = proceed;
     }
 
-    public Long getTransactionID() {
-        return transactionID;
+    public Long getTransactionId() {
+        return transactionId;
     }
 
-    public void setTransactionID(Long transactionID) {
-        this.transactionID = transactionID;
+    public void setTransactionId(Long transactionID) {
+        this.transactionId = transactionID;
     }
 }

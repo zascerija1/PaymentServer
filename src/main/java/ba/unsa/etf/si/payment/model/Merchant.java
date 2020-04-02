@@ -17,7 +17,7 @@ public class Merchant {
     )
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "bank_account_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private BankAccount bankAccount;
