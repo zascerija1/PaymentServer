@@ -18,7 +18,7 @@ create table if not exists public.roles
             unique
 );
 
-create table if not exists banks
+create table if not exists public.banks
 (
     id        bigint not null
         constraint banks_pkey
@@ -26,7 +26,7 @@ create table if not exists banks
     bank_name varchar(255)
 );
 
-create table if not exists bank_accounts
+create table if not exists public.bank_accounts
 (
     id            bigint           not null
         constraint bank_accounts_pkey
@@ -46,7 +46,7 @@ create table if not exists bank_accounts
             on delete cascade
 );
 
-create table if not exists atms
+create table if not exists public.atms
 (
     id        bigint           not null
         constraint atms_pkey
@@ -57,6 +57,20 @@ create table if not exists atms
     bank_id   bigint           not null
         constraint fkkjoxqnmbgukc2qcyu4mhqwx2w
             references banks
+            on delete cascade
+);
+
+create table if not exists public.merchants
+(
+    id              bigint not null
+        constraint merchants_pkey
+            primary key,
+    merchant_name   text,
+    bank_account_id bigint not null
+        constraint uk_152q4yt6b8fl64q061cp8e666
+            unique
+        constraint fk3stbkqegk8a9q5qom2xwqhpvq
+            references bank_accounts
             on delete cascade
 );
 
@@ -109,11 +123,6 @@ INSERT INTO public.banks (id, bank_name) VALUES (2, 'Raiffeisen Bank');
 INSERT INTO public.banks (id, bank_name) VALUES (3, 'Sparkasse Bank');
 INSERT INTO public.banks (id, bank_name) VALUES (4, 'Sberbank BH');
 INSERT INTO public.banks (id, bank_name) VALUES (5, 'ZiraatBank BH');
-
-
-
-
-
 
 
 
@@ -221,3 +230,24 @@ VALUES (25, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Thomas 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
 VALUES (26, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Thomas Shelby',
      '1111111111111138', '138', '2023-03-25 14:45:36.674000','4000.00',3) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
+/*-----------------------------------------
+  MERCHANTS BANK ACCOUNTS
+  ----------------------------------------
+*/
+INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
+VALUES (27, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Amko Komerc d.o.o',
+        '1111111111111139', '139', '2023-03-25 14:45:36.674000','4000.00',2) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
+INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
+VALUES (28, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Bingo d.o.o'
+       , '1111111111111141', '141', '2023-03-25 14:45:36.674000','3000.00',4) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
+INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
+VALUES (29, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Konzum d.o.o',
+        '1111111111111142', '142', '2023-03-25 14:45:36.674000','4000.00',3) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
+
+INSERT INTO public.merchants (id, merchant_name, bank_account_id) VALUES (1, 'Amko Komerc d.o.o',27);
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (2, 'Bingo d.o.o',28);
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (3, 'Konzum d.o.o',29);

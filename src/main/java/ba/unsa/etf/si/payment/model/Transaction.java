@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "transactions")
-@Check(constraints = "totalPrice >= 0")
+@Check(constraints = "total_price >= 0")
 public class Transaction extends AuditModel {
     @Id
     @GeneratedValue(generator = "transaction_generator")
@@ -33,7 +33,7 @@ public class Transaction extends AuditModel {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ApplicationUser applicationUser;
 
-    @Column(name = "totalPrice", nullable = false)
+    @Column(name = "total_price", nullable = false)
     private Double totalPrice;
 
     @Column(columnDefinition = "text")
