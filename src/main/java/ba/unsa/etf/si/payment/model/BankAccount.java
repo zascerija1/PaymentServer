@@ -28,7 +28,7 @@ public class BankAccount extends AuditModel {
     @Column(columnDefinition = "text")
     private String  accountOwner;
 
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "bank_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Bank bank;
@@ -67,14 +67,6 @@ public class BankAccount extends AuditModel {
         this.accountOwner = accountOwner;
     }
 
-    public String getBankName() {
-        return bankName;
-    }
-
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
-    }
-
     public Date getExpiryDate() {
         return expiryDate;
     }
@@ -102,4 +94,12 @@ public class BankAccount extends AuditModel {
     public Double getBalance() { return balance; }
 
     public void setBalance(Double balance) { this.balance = balance; }
+
+    public Bank getBank() {
+        return bank;
+    }
+
+    public void setBank(Bank bank) {
+        this.bank = bank;
+    }
 }

@@ -31,7 +31,7 @@ public class BankAccountUserService {
                     //we send bankAccountUserId, because we want do delete a row in that table
                     //not a bank account which  actually doesn't belong to our system
                     return new BankAccountDataResponse(bankAccountUser.getId(), bankAccount.getAccountOwner(),
-                            bankAccount.getBankName(), bankAccount.getExpiryDate(), bankAccount.getCardNumber());
+                            bankAccount.getBank().getBankName(), bankAccount.getExpiryDate(), bankAccount.getCardNumber());
                 })
                 .collect(Collectors.toList());
     }
