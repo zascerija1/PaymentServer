@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findAllByBankAccountUser_Id(Long id);
+    List<Transaction> findAllByBankAccount_Id(Long id);
     List<Transaction> findAllByMerchant_MerchantName(String merchantName);
     List<Transaction> findAllByCreatedAtBetween(Date startDate, Date endDate);
 }
