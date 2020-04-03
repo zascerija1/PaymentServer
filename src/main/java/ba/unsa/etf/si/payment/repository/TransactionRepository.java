@@ -6,11 +6,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findAllByBankAccount_Id(Long id);
-    List<Transaction> findByApplicationUser_Id(Long id);
-    List<Transaction> findAllByMerchant_MerchantName(String merchantName);
-    List<Transaction> findAllByCreatedAtBetween(Date startDate, Date endDate);
+    List<Transaction> findAllByBankAccount_IdAndProcessed(Long id,Boolean processed);
+    List<Transaction> findByApplicationUser_IdAndProcessed(Long id,Boolean processed);
+    List<Transaction> findAllByMerchant_MerchantNameAndProcessed(String merchantName,Boolean processed);
+    List<Transaction> findAllByCreatedAtBetweenAndProcessed(Date startDate, Date endDate,Boolean processed);
+    Optional<Transaction> findByIdAndApplicationUser_Id(Long transactionId, Long applicationUserId);
 }

@@ -5,11 +5,7 @@ import ba.unsa.etf.si.payment.model.BankAccountUser;
 import ba.unsa.etf.si.payment.repository.BankAccountUserRepository;
 import ba.unsa.etf.si.payment.response.BankAccountDataResponse;
 import ba.unsa.etf.si.payment.response.PaymentResponse;
-import ba.unsa.etf.si.payment.security.CurrentUser;
-import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.util.PaymentStatus;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,10 +15,12 @@ import java.util.stream.Collectors;
 public class BankAccountUserService {
 
     private final BankAccountUserRepository bankAccountUserRepository;
+    private final TransactionService transactionService;
 
 
-    public BankAccountUserService(BankAccountUserRepository bankAccountUserRepository) {
+    public BankAccountUserService(BankAccountUserRepository bankAccountUserRepository, TransactionService transactionService) {
         this.bankAccountUserRepository = bankAccountUserRepository;
+        this.transactionService = transactionService;
     }
 
     public BankAccountUser save(BankAccountUser bankAccountUser) {
@@ -72,12 +70,25 @@ public class BankAccountUserService {
         double totalMoney = bankAccountUser.getBankAccount().getBalance();
 
         if (totalMoney < amountToPay)
-            return  new PaymentResponse(PaymentStatus.INSUFFICIENT_FUNDS, "Not enough money to pay!");
+            return new PaymentResponse(PaymentStatus.INSUFFICIENT_FUNDS, "Not enough money to pay!");
 
         totalMoney = totalMoney - amountToPay;
         bankAccountUser.getBankAccount().setBalance(totalMoney);
         save(bankAccountUser);
         return new PaymentResponse(PaymentStatus.PAID, "Payment successful!");
+    }
+
+    public PaymentResponse checkBalanceForPayment(Long accId, Long userId, double amountToPay) {
+        if (!existsByIdAndUserId(accId, userId))
+            return new PaymentResponse(PaymentStatus.CANCELED, "This account does not belong to this user!");
+
+        BankAccountUser bankAccountUser=findBankAccountUserById(accId);
+        double totalMoney = bankAccountUser.getBankAccount().getBalance();
+
+        if (totalMoney < amountToPay)
+            return new PaymentResponse(PaymentStatus.INSUFFICIENT_FUNDS, "Not enough money to pay!");
+
+        return new PaymentResponse(PaymentStatus.SUFFICIENT_FUNDS, "You have enough funds to pay this receipt!");
     }
 
 }

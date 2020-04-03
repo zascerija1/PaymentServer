@@ -1,16 +1,20 @@
-package ba.unsa.etf.si.payment.request;
+package ba.unsa.etf.si.payment.request.QRCodes;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 public class PayQRRequest {
 
-    @NotBlank
+    //todo
+    //Not Blank se koristi za text tj string, pa ne može ovdje
+    //Mogu se napraviti custom anotacije
     private Boolean proceed;
 
-    @NotBlank
+    //todo isto
     private Long bankAccountId;
 
-    @NotBlank
+    //@NotBlank
+    //todo isto razmatranje
     private Long transactionId;
 
     public PayQRRequest(@NotBlank Boolean proceed, @NotBlank Long bankAccountId, @NotBlank Long transactionId) {

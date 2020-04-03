@@ -249,5 +249,5 @@ VALUES (29, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Konzum 
 
 
 INSERT INTO public.merchants (id, merchant_name, bank_account_id) VALUES (1, 'Amko Komerc d.o.o',27);
-INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (2, 'Bingo d.o.o',28);
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (2, 'BINGO',28);
 INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (3, 'Konzum d.o.o',29);
