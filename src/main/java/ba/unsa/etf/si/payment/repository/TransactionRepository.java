@@ -11,6 +11,6 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findAllByBankAccount_Id(Long id);
     List<Transaction> findByApplicationUser_Id(Long id);
-    List<Transaction> findAllByMerchant_MerchantName(String merchantName);
     List<Transaction> findAllByCreatedAtBetween(Date startDate, Date endDate);
+    List<Transaction> findAllByApplicationUser_IdAndMerchant_MerchantName(Long id, String merchantName);
 }
