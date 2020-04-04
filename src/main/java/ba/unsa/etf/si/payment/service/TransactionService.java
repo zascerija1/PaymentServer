@@ -98,7 +98,7 @@ public class TransactionService {
     }
 
     public List<TransactionDataResponse> findAllTransactionsByUserIdAndService(Long userId, String service){
-        return transactionRepository.findByApplicationUser_Id(userId)
+        return transactionRepository.findByApplicationUser_IdAndProcessed(userId, true)
                 .stream()
                 .filter(transaction -> transaction.getService().contains(service))
                 .map(transaction -> {
