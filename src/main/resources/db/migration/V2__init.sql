@@ -118,11 +118,11 @@ INSERT INTO public.questions (id, created_at, updated_at, description,title) VAL
 (9, '2020-03-25 14:45:36.674000','2020-03-25 14:45:36.674000', 'Time of birth of the first child',
  'What time of the day was your first child born? (hh:mm)') ON CONFLICT ON CONSTRAINT questions_pkey DO NOTHING;
 
-INSERT INTO public.banks (id, bank_name) VALUES (1, 'UniCredit Bank');
-INSERT INTO public.banks (id, bank_name) VALUES (2, 'Raiffeisen Bank');
-INSERT INTO public.banks (id, bank_name) VALUES (3, 'Sparkasse Bank');
-INSERT INTO public.banks (id, bank_name) VALUES (4, 'Sberbank BH');
-INSERT INTO public.banks (id, bank_name) VALUES (5, 'ZiraatBank BH');
+INSERT INTO public.banks (id, bank_name) VALUES (1, 'UniCredit Bank') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
+INSERT INTO public.banks (id, bank_name) VALUES (2, 'Raiffeisen Bank') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
+INSERT INTO public.banks (id, bank_name) VALUES (3, 'Sparkasse Bank') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
+INSERT INTO public.banks (id, bank_name) VALUES (4, 'Sberbank BH') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
+INSERT INTO public.banks (id, bank_name) VALUES (5, 'ZiraatBank BH') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
 
 
 
@@ -248,6 +248,6 @@ VALUES (29, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Konzum 
         '1111111111111142', '142', '2023-03-25 14:45:36.674000','4000.00',3) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 
-INSERT INTO public.merchants (id, merchant_name, bank_account_id) VALUES (1, 'Amko Komerc d.o.o',27);
-INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (2, 'BINGO',28);
-INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (3, 'Konzum d.o.o',29);
+INSERT INTO public.merchants (id, merchant_name, bank_account_id) VALUES (1, 'Amko Komerc d.o.o',27) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (2, 'BINGO',28) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (3, 'Konzum d.o.o',29) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;

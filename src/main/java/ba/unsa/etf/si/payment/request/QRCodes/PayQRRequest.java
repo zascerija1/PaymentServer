@@ -8,8 +8,6 @@ public class PayQRRequest {
     //todo
     //Not Blank se koristi za text tj string, pa ne može ovdje
     //Mogu se napraviti custom anotacije
-    private Boolean proceed;
-
     //todo isto
     private Long bankAccountId;
 
@@ -17,18 +15,9 @@ public class PayQRRequest {
     //todo isto razmatranje
     private Long transactionId;
 
-    public PayQRRequest(@NotBlank Boolean proceed, @NotBlank Long bankAccountId, @NotBlank Long transactionId) {
-        this.proceed = proceed;
+    public PayQRRequest(Long bankAccountId,Long transactionId) {
         this.bankAccountId = bankAccountId;
         this.transactionId = transactionId;
-    }
-
-    public Boolean getProceed() {
-        return proceed;
-    }
-
-    public void setProceed(Boolean proceed) {
-        this.proceed = proceed;
     }
 
     public Long getBankAccountId() {

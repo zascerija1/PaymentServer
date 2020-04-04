@@ -17,16 +17,13 @@ public class DynamicQRRequest {
 
     private Double totalPrice;
 
-    private Boolean proceed;
-
     private Long bankAccountId;
 
-    public DynamicQRRequest(@NotBlank String receiptId, @NotBlank String businessName, @NotBlank String service,  Double amount, Boolean proceed, Long bankAccountID) {
+    public DynamicQRRequest(@NotBlank String receiptId, @NotBlank String businessName, @NotBlank String service,  Double amount, Long bankAccountID) {
         this.receiptId = receiptId;
         this.businessName = businessName;
         this.service = service;
         this.totalPrice = amount;
-        this.proceed = proceed;
         this.bankAccountId = bankAccountID;
     }
 
@@ -52,14 +49,6 @@ public class DynamicQRRequest {
 
     public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
-    }
-
-    public Boolean getProceed() {
-        return proceed;
-    }
-
-    public void setProceed(Boolean proceed) {
-        this.proceed = proceed;
     }
 
     public Long getBankAccountId() {

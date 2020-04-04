@@ -3,14 +3,14 @@ package ba.unsa.etf.si.payment.request.QRCodes;
 
 import java.io.Serializable;
 
-public class NotPayQRRequest implements Serializable {
+public class NotPayQRRequestStatic implements Serializable {
 
     private Long transactionId;
 
-    public NotPayQRRequest() {
+    public NotPayQRRequestStatic() {
     }
 
-    public NotPayQRRequest(Long transactionId) {
+    public NotPayQRRequestStatic(Long transactionId) {
         this.transactionId = transactionId;
     }
 

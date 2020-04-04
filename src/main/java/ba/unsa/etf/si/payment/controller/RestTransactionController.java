@@ -1,17 +1,13 @@
 package ba.unsa.etf.si.payment.controller;
 
 
-import ba.unsa.etf.si.payment.exception.AppException;
 import ba.unsa.etf.si.payment.exception.BadRequestException;
 import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
 import ba.unsa.etf.si.payment.model.ApplicationUser;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
 import ba.unsa.etf.si.payment.model.Merchant;
 import ba.unsa.etf.si.payment.model.Transaction;
-import ba.unsa.etf.si.payment.request.QRCodes.DynamicQRRequest;
-import ba.unsa.etf.si.payment.request.QRCodes.NotPayQRRequest;
-import ba.unsa.etf.si.payment.request.QRCodes.PayQRRequest;
-import ba.unsa.etf.si.payment.request.QRCodes.StaticQRRequest;
+import ba.unsa.etf.si.payment.request.QRCodes.*;
 import ba.unsa.etf.si.payment.request.TransacationSuccessRequest;
 import ba.unsa.etf.si.payment.response.*;
 import ba.unsa.etf.si.payment.security.CurrentUser;
@@ -21,7 +17,6 @@ import ba.unsa.etf.si.payment.service.MerchantService;
 import ba.unsa.etf.si.payment.service.RestService;
 import ba.unsa.etf.si.payment.service.TransactionService;
 import ba.unsa.etf.si.payment.util.PaymentStatus;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -92,8 +87,7 @@ public class RestTransactionController {
                                          @CurrentUser UserPrincipal userPrincipal){
 
 
-        if(payQRRequest==null || payQRRequest.getTransactionId()==null || payQRRequest.getBankAccountId()==null ||
-            payQRRequest.getProceed()==null){
+        if(payQRRequest==null || payQRRequest.getTransactionId()==null || payQRRequest.getBankAccountId()==null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Parameters" +
                     " missing! Try again");
         }
@@ -105,12 +99,6 @@ public class RestTransactionController {
 
         if(transaction.getBankAccount()!=null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
-        }
-
-        //todo bit ce jedna ruta, ljepse je
-
-        if(!payQRRequest.getProceed()){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Bad request! Please provide consistent data");
         }
 
         //todo provjeriti ovo!!!!!!!!!!!!!!!!
@@ -142,14 +130,10 @@ public class RestTransactionController {
                                                     @CurrentUser UserPrincipal userPrincipal){
 
 
-        if(dynamicQRRequest==null || dynamicQRRequest.getBankAccountId()==null ||
-                dynamicQRRequest.getProceed()==null || dynamicQRRequest.getTotalPrice()==null){
+        if(dynamicQRRequest==null || dynamicQRRequest.getBankAccountId()==null
+                || dynamicQRRequest.getTotalPrice()==null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Parameters" +
                     " missing! Try again");
-        }
-
-        if(!dynamicQRRequest.getProceed()){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Bad request! Please provide consistent data");
         }
         List<Merchant> merchantList=merchantService.find(dynamicQRRequest.getBusinessName());
         if(merchantList.isEmpty()){
@@ -176,7 +160,6 @@ public class RestTransactionController {
                         paymentResponse.getMessage()), dynamicQRRequest.getReceiptId());
             } catch (HttpStatusCodeException ex) {
                 throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
-
             }
 
             transactionService.save(transaction);
@@ -205,23 +188,41 @@ public class RestTransactionController {
     }
 
     //Ipak cemo sa odvojenim rutama
-    @PostMapping("/cancel")
-    public PaymentResponse cancelThePayment(@RequestBody NotPayQRRequest notPayQRRequest,
+    @PostMapping("/static/cancel")
+    public PaymentResponse cancelThePaymentStatic(@RequestBody NotPayQRRequestStatic notPayQRRequestStatic,
                                              @CurrentUser UserPrincipal userPrincipal){
-        if(notPayQRRequest==null || notPayQRRequest.getTransactionId()==null){
+        if(notPayQRRequestStatic ==null || notPayQRRequestStatic.getTransactionId()==null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction id missing! Try again");
         }
-        Transaction transaction = transactionService.findByIdAndApplicationUser_Id(notPayQRRequest.getTransactionId(), userPrincipal.getId());
+        Transaction transaction = transactionService.findByIdAndApplicationUser_Id(notPayQRRequestStatic.getTransactionId(), userPrincipal.getId());
         if(transaction==null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
         }
         if(transaction.getProcessed()){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
-        //todo otkomentarisati kasnije
-        restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
-               "Customer decided not to proceed with payment"), transaction.getReceiptId());
+
+        try {
+            restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
+                    "Customer decided not to proceed with payment"), transaction.getReceiptId());
+        } catch (HttpStatusCodeException ex) {
+            throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
+        }
+
         transactionService.delete(transaction.getId());
+        return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
+    }
+
+    @PostMapping("/dynamic/cancel")
+    public PaymentResponse cancelThePaymentDynamic(@Valid @RequestBody NotPayQRRequestDynamic notPayQRRequestDynamic,
+                                                   @CurrentUser UserPrincipal userPrincipal){
+
+        try {
+            restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
+                    "Customer decided not to proceed with payment"), notPayQRRequestDynamic.getReceiptId());
+        } catch (HttpStatusCodeException ex) {
+            throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
+        }
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
     }
 
@@ -243,13 +244,6 @@ public class RestTransactionController {
         if(transaction.getBankAccount()!=null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
-
-        if(!payQRRequest.getProceed()){
-           // restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
-                  //  "Customer decided not to proceed with payment"), transaction.getReceiptId());
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Bad request! Please provide consistent data");
-        }
-
 
         PaymentResponse paymentResponse = bankAccountUserService.getPaymentResult(payQRRequest.getBankAccountId(),
                 userPrincipal.getId(), transaction.getTotalPrice());
