@@ -13,7 +13,8 @@ public class Merchant {
     @GeneratedValue(generator = "merchant_generator")
     @SequenceGenerator(
             name = "merchant_generator",
-            sequenceName = "merchant_sequence"
+            sequenceName = "merchant_sequence",
+            initialValue = 100
     )
     private Long id;
 

@@ -21,7 +21,8 @@ public class BankAccount extends AuditModel {
     @GeneratedValue(generator = "bank_generator")
     @SequenceGenerator(
             name = "bank_generator",
-            sequenceName = "bank_sequence"
+            sequenceName = "bank_sequence",
+            initialValue = 100
     )
     private Long id;
 

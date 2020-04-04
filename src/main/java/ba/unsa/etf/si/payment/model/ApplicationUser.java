@@ -18,7 +18,8 @@ public class ApplicationUser extends AuditModel{
     @GeneratedValue(generator = "user_generator")
     @SequenceGenerator(
             name="user_generator",
-            sequenceName = "user_sequence"
+            sequenceName = "user_sequence",
+            initialValue = 100
     )
     private Long id;
 

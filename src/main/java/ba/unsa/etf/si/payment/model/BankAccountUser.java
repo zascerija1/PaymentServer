@@ -12,7 +12,8 @@ public class BankAccountUser {
     @GeneratedValue(generator = "bank_generator_user")
     @SequenceGenerator(
             name = "bank_generator_user",
-            sequenceName = "bank_user_sequence"
+            sequenceName = "bank_user_sequence",
+            initialValue = 100
     )
     private Long id;
 
