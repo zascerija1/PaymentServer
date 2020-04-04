@@ -11,6 +11,7 @@ import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
 import ba.unsa.etf.si.payment.service.TransactionService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
@@ -36,7 +37,6 @@ public class TransactionController {
         return transactionService.findAllTransactionsByUserId(currentUser.getId());
     }
 
-    //todo get transactions filtering
     @GetMapping("/recent/{days}")
     public List<TransactionDataResponse> getAllTransactionsBetween(@PathVariable Integer days){
         if(days <= 0) throw new BadRequestException("Number of days invalid.");
@@ -70,10 +70,8 @@ public class TransactionController {
         return transactionService.findAllTransactionsByBankAccount(bankAccountUser.getBankAccount().getId());
     }
 
-    //todo post new transaction
 
-
-    //todo delete transaction
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{transactionId}")
     public DeleteTransactionResponse deleteTransaction(@PathVariable Long transactionId){
         transactionService.delete(transactionId);

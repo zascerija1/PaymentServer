@@ -142,7 +142,7 @@ create table if not exists public.merchants
             on delete cascade
 );
 
-create table public.transactions
+create table if not exists public.transactions
 (
     id                  bigint           not null
         constraint transactions_pkey
@@ -229,7 +229,7 @@ VALUES (1, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Dzan Tab
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
 VALUES (2, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Ajsa Hajradinovic',
-         '1111111111111112', '112', '2023-03-25 14:45:36.674000','1000.00',5) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+         '1111111111111112', '112', '2023-03-25 14:45:36.674000','50.00',5) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
 VALUES (3, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Amra Dadic',
@@ -245,7 +245,7 @@ VALUES (5, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Dzan Tab
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
 VALUES (6, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Ajsa Hajradinovic',
-         '1111111111111116', '116', '2023-03-25 14:45:36.674000','1000.00',4) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+         '1111111111111116', '116', '2023-03-25 14:45:36.674000','100.00',4) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
 VALUES (7, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Ajsa Hajradinovic',
