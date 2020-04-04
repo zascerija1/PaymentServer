@@ -2,31 +2,34 @@ package ba.unsa.etf.si.payment.response;
 
 public class TransactionSubmitResponse {
 
-    private Long transactionID;
-    private Double amount;
+    public Long getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    private Long transactionId;
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    private Double totalPrice;
     private String service;
 
-    public TransactionSubmitResponse(Long transactionID, Double amount, String service) {
-        this.transactionID = transactionID;
-        this.amount = amount;
+    public TransactionSubmitResponse(Long transactionId, Double amount, String service) {
+        this.transactionId = transactionId;
+        this.totalPrice = amount;
         this.service = service;
     }
 
-    public Long getTransactionID() {
-        return transactionID;
-    }
 
-    public void setTransactionID(Long transactionID) {
-        this.transactionID = transactionID;
-    }
-
-    public Double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Double amount) {
-        this.amount = amount;
-    }
 
     public String getService() {
         return service;

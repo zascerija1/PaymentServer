@@ -18,8 +18,10 @@ public class Transaction extends AuditModel {
     )
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "bank_account_id")
+    //todo
+    //Ovo ce morati biti nullable jer nemamo odmah podatke o računu
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "bank_account_id",nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private  BankAccount bankAccount;
 
@@ -42,6 +44,20 @@ public class Transaction extends AuditModel {
     @Column(columnDefinition = "text")
     private String receiptId;
 
+    @Column(name="processed")
+    private Boolean processed;
+
+    public Transaction(Merchant merchant, ApplicationUser applicationUser, Double totalPrice, String service, String receiptId, Boolean processed) {
+        this.merchant=merchant;
+        this.applicationUser=applicationUser;
+        this.totalPrice=totalPrice;
+        this.service=service;
+        this.receiptId=receiptId;
+        this.processed = processed;
+    }
+
+    public Transaction() {
+    }
 
     public Long getId() {
         return id;
@@ -98,5 +114,13 @@ public class Transaction extends AuditModel {
 
     public void setReceiptId(String receiptId) {
         this.receiptId = receiptId;
+    }
+
+    public Boolean getProcessed() {
+        return processed;
+    }
+
+    public void setProcessed(Boolean processed) {
+        this.processed = processed;
     }
 }

@@ -1,4 +1,4 @@
-package ba.unsa.etf.si.payment.request;
+package ba.unsa.etf.si.payment.request.QRCodes;
 
 import javax.validation.constraints.NotBlank;
 
@@ -6,16 +6,16 @@ public class StaticQRRequest {
 
     //todo adjust to cash register server...
 
-    @NotBlank
+    //@NotBlank
     private Long cashRegisterId;
 
-    @NotBlank
+    //@NotBlank
     private Long officeId;
 
     @NotBlank
     private String businessName;
 
-    public StaticQRRequest(@NotBlank Long cashRegisterId, @NotBlank Long officeId, @NotBlank String businessName) {
+    public StaticQRRequest(Long cashRegisterId, Long officeId, @NotBlank String businessName) {
         this.cashRegisterId = cashRegisterId;
         this.officeId = officeId;
         this.businessName = businessName;
