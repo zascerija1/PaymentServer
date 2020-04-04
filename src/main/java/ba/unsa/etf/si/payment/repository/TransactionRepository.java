@@ -15,4 +15,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findAllByMerchant_MerchantNameAndProcessed(String merchantName,Boolean processed);
     List<Transaction> findAllByCreatedAtBetweenAndProcessed(Date startDate, Date endDate,Boolean processed);
     Optional<Transaction> findByIdAndApplicationUser_Id(Long transactionId, Long applicationUserId);
+    List<Transaction> findAllByBankAccount_Id(Long id);
+    List<Transaction> findByApplicationUser_Id(Long id);
+    List<Transaction> findAllByCreatedAtBetween(Date startDate, Date endDate);
+    List<Transaction> findAllByApplicationUser_IdAndMerchant_MerchantName(Long id, String merchantName);
 }

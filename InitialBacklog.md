@@ -154,3 +154,93 @@
 * Create a route for deleting a bank account
 * Commit and push on your branch
 * Create a pull request
+
+
+# Feature
+
+> Filtering transactions
+
+## Item
+
+> Payment Dashboard Web App and Pay Mobile App users are able to get transactions data filtered: 
+*by user ID (get users transactions),
+*by bank account ID, 
+*by transactions created time (last 24h), 
+*by transactions created time (last month),
+*by users service,
+*by merchant name.
+
+### Task
+
+* Create a new branch and switch to it
+* Create a response class and request class if needed
+* Create a controller for transactions and all the rutes for filtering
+* Commit and push on your branch
+* Create a pull request
+
+
+
+
+# Feature
+
+> Was payment successful?
+
+## Item
+
+> Main Server and Pay Mobile App need to know if payment was successful. They need to get a response from Payment server.
+
+### Task
+
+* Create a new branch and switch to it
+* Create a response class and request class if needed
+* Create a controller for transactions and all the rutes 
+* Receive request from Pay Mobile App for paying
+* Create a new transaction and get money from users bank account if they have enough money
+* Send response to Main Server and Pay Mobile App
+* Commit and push on your branch
+* Create a pull request
+
+
+
+# Feature
+
+> Paying with dynamic QR code
+
+## Item
+
+> Pay Mobile App need to be able to pay with dynamic QR code.
+
+### Task
+
+* Create a new branch and switch to it
+* Create a response class and request class if needed
+* Create a controller for paying/transactions and all the rutes 
+* Receive request from Pay Mobile App for paying, with all the information they get from scanning the code
+* Create a new transaction and get money from users bank account if they have enough money
+* Send response to Main Server and Pay Mobile App
+* Commit and push on your branch
+* Create a pull request
+
+
+
+# Feature
+
+> Paying with static QR code
+
+## Item
+
+> Pay Mobile App need to be able to pay with static QR code.
+
+### Task
+
+* Create a new branch and switch to it
+* Create a response class and request class if needed
+* Create a controller for paying/transactions and all the rutes 
+* Receive request from Pay Mobile App for paying, with all the information they get from scanning the code (cash register ID and businessName)
+* Send a request to Main Server to get all the other information we need to continue payment
+* Send response to Pay App to see if they want to continue
+* Create a new transaction and get money from users bank account if they have enough money
+* Send response (about payment status) to Main Server and Pay Mobile App 
+* Commit and push on your branch
+* Create a pull request
+
