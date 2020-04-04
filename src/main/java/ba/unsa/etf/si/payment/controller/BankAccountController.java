@@ -13,6 +13,7 @@ import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.ApplicationUserService;
 import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
+import ba.unsa.etf.si.payment.util.PaymentStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 

@@ -11,7 +11,8 @@ public class Question extends AuditModel {
     @GeneratedValue(generator = "question_generator")
     @SequenceGenerator(
             name="question_generator",
-            sequenceName = "question_sequence"
+            sequenceName = "question_sequence",
+            initialValue = 100
     )
     private Long id;
 
