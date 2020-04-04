@@ -1,4 +1,4 @@
-package ba.unsa.etf.si.payment.request;
+package ba.unsa.etf.si.payment.request.QRCodes;
 
 import javax.validation.constraints.NotBlank;
 
@@ -7,7 +7,7 @@ public class DynamicQRRequest {
     //todo adjust to cash register server...
 
     @NotBlank
-    private Long receiptId;
+    private String receiptId;
 
     @NotBlank
     private String businessName;
@@ -15,21 +15,15 @@ public class DynamicQRRequest {
     @NotBlank
     private String service;
 
-    @NotBlank
     private Double totalPrice;
 
-    @NotBlank
-    private Boolean proceed;
-
-    @NotBlank
     private Long bankAccountId;
 
-    public DynamicQRRequest(@NotBlank Long receiptId, @NotBlank String businessName, @NotBlank String service, @NotBlank Double amount, @NotBlank Boolean proceed, Long bankAccountID) {
+    public DynamicQRRequest(@NotBlank String receiptId, @NotBlank String businessName, @NotBlank String service,  Double amount, Long bankAccountID) {
         this.receiptId = receiptId;
         this.businessName = businessName;
         this.service = service;
         this.totalPrice = amount;
-        this.proceed = proceed;
         this.bankAccountId = bankAccountID;
     }
 
@@ -57,14 +51,6 @@ public class DynamicQRRequest {
         this.totalPrice = totalPrice;
     }
 
-    public Boolean getProceed() {
-        return proceed;
-    }
-
-    public void setProceed(Boolean proceed) {
-        this.proceed = proceed;
-    }
-
     public Long getBankAccountId() {
         return bankAccountId;
     }
@@ -73,11 +59,11 @@ public class DynamicQRRequest {
         this.bankAccountId = bankAccountId;
     }
 
-    public Long getReceiptId() {
+    public String getReceiptId() {
         return receiptId;
     }
 
-    public void setReceiptId(Long receiptId) {
+    public void setReceiptId(String receiptId) {
         this.receiptId = receiptId;
     }
 }

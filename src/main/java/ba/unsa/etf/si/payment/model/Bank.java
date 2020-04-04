@@ -9,7 +9,8 @@ public class Bank {
     @GeneratedValue(generator = "bank_as_client_generator")
     @SequenceGenerator(
             name = "bank_as_client_generator",
-            sequenceName = "bank_as_client_sequence"
+            sequenceName = "bank_as_client_sequence",
+            initialValue = 100
     )
     private Long id;
 

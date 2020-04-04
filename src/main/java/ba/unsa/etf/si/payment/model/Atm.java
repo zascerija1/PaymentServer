@@ -14,7 +14,8 @@ public class Atm {
     @GeneratedValue(generator = "atm_generator")
     @SequenceGenerator(
             name = "atm_generator",
-            sequenceName = "atm_sequence"
+            sequenceName = "atm_sequence",
+            initialValue = 100
     )
     private Long id;
 

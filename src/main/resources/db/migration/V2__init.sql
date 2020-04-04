@@ -18,6 +18,57 @@ create table if not exists public.roles
             unique
 );
 
+create table if not exists public.answers
+(
+    id          bigint    not null
+        constraint answers_pkey
+            primary key,
+    created_at  timestamp not null,
+    updated_at  timestamp not null,
+    text        text,
+    question_id bigint    not null
+        constraint fk3erw1a3t0r78st8ty27x6v3g1
+            references questions
+            on delete cascade
+);
+
+
+create table if not exists public.application_users
+(
+    id         bigint    not null
+        constraint application_users_pkey
+            primary key,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    email      varchar(255)
+        constraint uk_ha8ehjd5vlqolvals08ssh7o0
+            unique,
+    first_name text,
+    last_name  text,
+    password   varchar(100),
+    username   varchar(255),
+    answer_id  bigint    not null
+        constraint uk_ortc4unvsh9wn07pt9d3nv2n4
+            unique
+        constraint fk8k1bh0dvfnphvin7adchxs1fm
+            references answers
+            on delete cascade
+);
+
+create table if not exists public.user_roles
+(
+    user_id bigint not null
+        constraint fkhm3fc8664fichr5tu1u9566il
+            references application_users,
+    role_id bigint not null
+        constraint fkh8ciramu9cc9q3qcqiv4ue8a6
+            references roles,
+    constraint user_roles_pkey
+        primary key (user_id, role_id)
+);
+
+
+
 create table if not exists public.banks
 (
     id        bigint not null
@@ -46,6 +97,23 @@ create table if not exists public.bank_accounts
             on delete cascade
 );
 
+create table if not exists public.bank_account_users
+(
+    id                  bigint not null
+        constraint bank_account_users_pkey
+            primary key,
+    application_user_id bigint not null
+        constraint fkjvnkuxpowqf9445fnwobvub83
+            references application_users
+            on delete cascade,
+    bank_account_id     bigint not null
+        constraint uk_emykmc2ulup7oy6tje2l4u1vx
+            unique
+        constraint fk74pijj9nly4jh4lu9pauqjwmy
+            references bank_accounts
+            on delete cascade
+);
+
 create table if not exists public.atms
 (
     id        bigint           not null
@@ -71,6 +139,33 @@ create table if not exists public.merchants
             unique
         constraint fk3stbkqegk8a9q5qom2xwqhpvq
             references bank_accounts
+            on delete cascade
+);
+
+create table public.transactions
+(
+    id                  bigint           not null
+        constraint transactions_pkey
+            primary key,
+    created_at          timestamp        not null,
+    updated_at          timestamp        not null,
+    processed           boolean,
+    receipt_id          text,
+    service             text,
+    total_price         double precision not null
+        constraint transactions_total_price_check
+            check (total_price >= (0)::double precision),
+    application_user_id bigint           not null
+        constraint fkrkh6i81pyos3sns019vukplpy
+            references application_users
+            on delete cascade,
+    bank_account_id     bigint
+        constraint fk59wy892j0r3ye2oxj71rrj02
+            references bank_accounts
+            on delete cascade,
+    merchant_id         bigint           not null
+        constraint fkosju61fahf0o80fnd5p59jch5
+            references merchants
             on delete cascade
 );
 
@@ -118,11 +213,12 @@ INSERT INTO public.questions (id, created_at, updated_at, description,title) VAL
 (9, '2020-03-25 14:45:36.674000','2020-03-25 14:45:36.674000', 'Time of birth of the first child',
  'What time of the day was your first child born? (hh:mm)') ON CONFLICT ON CONSTRAINT questions_pkey DO NOTHING;
 
-INSERT INTO public.banks (id, bank_name) VALUES (1, 'UniCredit Bank');
-INSERT INTO public.banks (id, bank_name) VALUES (2, 'Raiffeisen Bank');
-INSERT INTO public.banks (id, bank_name) VALUES (3, 'Sparkasse Bank');
-INSERT INTO public.banks (id, bank_name) VALUES (4, 'Sberbank BH');
-INSERT INTO public.banks (id, bank_name) VALUES (5, 'ZiraatBank BH');
+
+INSERT INTO public.banks (id, bank_name) VALUES (1, 'UniCredit Bank') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
+INSERT INTO public.banks (id, bank_name) VALUES (2, 'Raiffeisen Bank') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
+INSERT INTO public.banks (id, bank_name) VALUES (3, 'Sparkasse Bank') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
+INSERT INTO public.banks (id, bank_name) VALUES (4, 'Sberbank BH') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
+INSERT INTO public.banks (id, bank_name) VALUES (5, 'ZiraatBank BH') ON CONFLICT ON CONSTRAINT banks_pkey DO NOTHING;
 
 
 
@@ -132,7 +228,7 @@ VALUES (1, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Dzan Tab
         '1111111111111111', '111', '2023-03-25 14:45:36.674000', '1000.00',1) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
-VALUES (2, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Aisa Hajradinovic',
+VALUES (2, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Ajsa Hajradinovic',
          '1111111111111112', '112', '2023-03-25 14:45:36.674000','1000.00',5) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
@@ -148,11 +244,11 @@ VALUES (5, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Dzan Tab
        '1111111111111115', '115', '2023-03-25 14:45:36.674000','1000.00',3) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
-VALUES (6, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Aisa Hajradinovic',
+VALUES (6, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Ajsa Hajradinovic',
          '1111111111111116', '116', '2023-03-25 14:45:36.674000','1000.00',4) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
-VALUES (7, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Aisa Hajradinovic',
+VALUES (7, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Ajsa Hajradinovic',
      '1111111111111117', '117', '2023-03-25 14:45:36.674000','1000.00',5) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
@@ -236,18 +332,81 @@ VALUES (26, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Thomas 
   ----------------------------------------
 */
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
-VALUES (27, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Amko Komerc d.o.o',
+VALUES (27, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Amko',
         '1111111111111139', '139', '2023-03-25 14:45:36.674000','4000.00',2) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
-VALUES (28, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Bingo d.o.o'
+VALUES (28, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'BINGO'
        , '1111111111111141', '141', '2023-03-25 14:45:36.674000','3000.00',4) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
-VALUES (29, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Konzum d.o.o',
-        '1111111111111142', '142', '2023-03-25 14:45:36.674000','4000.00',3) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+VALUES (29, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Konzum',
+        '1111111111111142', '142', '2023-03-25 14:45:36.674000','4000.00',5) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
+VALUES (30, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Aspek',
+        '1111111111111143', '143', '2023-03-25 14:45:36.674000','4000.00',1) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
+INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
+VALUES (31, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Montana',
+        '1111111111111144', '144', '2023-03-25 14:45:36.674000','4000.00',2) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
+INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
+VALUES (32, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Reuff',
+        '1111111111111145', '145', '2023-03-25 14:45:36.674000','4000.00',3) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
+INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
+VALUES (33, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Chipas',
+        '1111111111111146', '146', '2023-03-25 14:45:36.674000','4000.00',4) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
+INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
+VALUES (34, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Mercator',
+        '1111111111111147', '147', '2023-03-25 14:45:36.674000','4000.00',5) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
+INSERT INTO public.merchants (id, merchant_name, bank_account_id) VALUES (1, 'Amko',27) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (2, 'BINGO',28) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (3, 'Konzum',29) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (4, 'Aspek',30) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (5, 'Montana',31) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (6, 'Reuff',32) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (7, 'Chipas',33) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (8, 'Mercator',34) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
 
 
-INSERT INTO public.merchants (id, merchant_name, bank_account_id) VALUES (1, 'Amko Komerc d.o.o',27);
-INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (2, 'Bingo d.o.o',28);
-INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (3, 'Konzum d.o.o',29);
+/*--------------
+  USER AJSA
+ */
+
+INSERT INTO public.answers (id, created_at, updated_at, text,question_id) VALUES
+(1, '2020-03-25 14:45:36.674000','2020-03-25 14:45:36.674000', 'Ajsa',
+ 6) ON CONFLICT ON CONSTRAINT answers_pkey DO NOTHING;
+
+INSERT INTO public.application_users(id, created_at, updated_at, email, first_name, last_name, password, username, answer_id) VALUES
+(1, '2020-03-25 14:45:36.674000','2020-03-25 14:45:36.674000', 'ajsa@gmail.com', 'Ajsa', 'Hajradinovic', '$2a$10$DDhUlIqLK6F/ybdz/cPZZ.JTP75vIaFaCedZ7qRUa76dMqCqiXwgm',
+ 'ajsa123',1) ON CONFLICT ON CONSTRAINT application_users_pkey DO NOTHING;
+
+INSERT INTO public.user_roles (user_id, role_id) values (1,2) on conflict on constraint user_roles_pkey do nothing;
+
+INSERT INTO public.bank_account_users (id, application_user_id, bank_account_id) VALUES (1,1,6) on conflict on constraint  bank_account_users_pkey do nothing;
+INSERT INTO public.bank_account_users (id, application_user_id, bank_account_id) VALUES (2,1,7) on conflict on constraint  bank_account_users_pkey do nothing;
+INSERT INTO public.bank_account_users (id, application_user_id, bank_account_id) VALUES (3,1,2) on conflict on constraint  bank_account_users_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+(1, '2020-03-25 14:45:36.674000','2020-03-25 14:45:36.674000',true,'1-1-1-123456781', 'Franck caj (1.0), Torta Havana (1.0)', 43.5,1,6,1) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+(2, '2020-03-17 14:45:36.674000','2020-03-17 14:45:36.674000',true,'1-1-1-123456782', 'Sendvic losos (1.0), Coko kroasan (1.0)', 8.5,1,6,4) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+(3, '2020-03-08 14:45:36.674000','2020-03-08 14:45:36.674000',true,'1-1-1-123456783', 'Pita krompir (1.0), Pizza (2.0)', 4.5,1,7,4) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+(4, '2020-03-22 14:45:36.674000','2020-03-22 14:45:36.674000',true,'1-1-1-123456784', 'Tortilja Mexico (1.0), Pileca maslenica (2.0)', 11.0,1,7,5) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+(4, '2020-04-04 14:45:36.674000','2020-04-04 14:45:36.674000',true,'1-1-1-123456785', 'Tortilja Mexico (1.0), Pileca maslenica (2.0)', 11.0,1,7,5) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+(5, '2020-04-03 14:45:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456786', 'Brasno Klas (15.0), Ulje Floriol (10.0)', 35.70,1,7,8) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+(6, '2020-04-03 14:45:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456787', 'Loyd caj kamilica (1.0), Milka cokolada (10.0)', 10.8,1,7,8) on conflict  on constraint transactions_pkey do nothing;
