@@ -170,21 +170,29 @@ public class RestTransactionController {
 
     //Uklonila valid jer ne treba proceed parametar
     @PostMapping("/checkbalance")
-    public PaymentResponse checkTheBalanceForPayment(@RequestBody PayQRRequest payQRRequest,
+    public PaymentResponse checkTheBalanceForPayment(@RequestBody CheckBalanceRequest checkBalanceRequest,
                                             @CurrentUser UserPrincipal userPrincipal){
-        if(payQRRequest==null || payQRRequest.getTransactionId()==null || payQRRequest.getBankAccountId()==null){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction or bank account id" +
+        if(checkBalanceRequest==null ||  checkBalanceRequest.getBankAccountId()==null){
+            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Bank account" +
                     " missing! Try again");
         }
-        Transaction transaction = transactionService.findByIdAndApplicationUser_Id(payQRRequest.getTransactionId(), userPrincipal.getId());
-        if(transaction==null){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
+        if(checkBalanceRequest.getTransactionId()!=null) {
+            Transaction transaction = transactionService.findByIdAndApplicationUser_Id(checkBalanceRequest.getTransactionId(), userPrincipal.getId());
+            if (transaction == null) {
+                return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
+            }
+            if (transaction.getProcessed()) {
+                return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
+            }
+            return bankAccountUserService.checkBalanceForPayment(checkBalanceRequest.getBankAccountId(), userPrincipal.getId(),
+                    transaction.getTotalPrice());
         }
-        if(transaction.getProcessed()){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
+        else if(checkBalanceRequest.getTotalPrice()!=null){
+            return bankAccountUserService.checkBalanceForPayment(checkBalanceRequest.getBankAccountId(), userPrincipal.getId(),
+                   checkBalanceRequest.getTotalPrice());
         }
-        return bankAccountUserService.checkBalanceForPayment(payQRRequest.getBankAccountId(), userPrincipal.getId(),
-                transaction.getTotalPrice());
+        return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction id or total price" +
+                " missing! Please provide one! Try again !");
     }
 
     //Ipak cemo sa odvojenim rutama
@@ -227,6 +235,10 @@ public class RestTransactionController {
     }
 
     //todo Proba
+    //Ovdje mozete probati proces placanja za staticki kod
+    //S tim da u bazi mora biti neka transakcija prije toga
+    //Bez ubacenonog bank accounta
+    //I processed false jer kao nije obrađena
     @PostMapping("/proba")
     public PaymentResponse testThePayment(@Valid @RequestBody PayQRRequest payQRRequest,
                                          @CurrentUser UserPrincipal userPrincipal){
@@ -255,6 +267,23 @@ public class RestTransactionController {
             transactionService.save(transaction);
         }
         return paymentResponse;
+    }
+
+    @PostMapping("/static/cancel/proba")
+    public PaymentResponse cancelThePaymentStaticProba(@RequestBody NotPayQRRequestStatic notPayQRRequestStatic,
+                                                  @CurrentUser UserPrincipal userPrincipal){
+        if(notPayQRRequestStatic ==null || notPayQRRequestStatic.getTransactionId()==null){
+            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction id missing! Try again");
+        }
+        Transaction transaction = transactionService.findByIdAndApplicationUser_Id(notPayQRRequestStatic.getTransactionId(), userPrincipal.getId());
+        if(transaction==null){
+            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
+        }
+        if(transaction.getProcessed()){
+            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
+        }
+        transactionService.delete(transaction.getId());
+        return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
     }
 
     @GetMapping("/info")

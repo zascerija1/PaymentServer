@@ -70,7 +70,7 @@ public class TransactionService {
     }
 
     public List<TransactionDataResponse> findAllTransactionsBetween(Date startDate, Date endDate){
-        return transactionRepository.findAllByCreatedAtBetween(startDate, endDate)
+        return transactionRepository.findAllByCreatedAtBetweenAndProcessed(startDate, endDate,true)
                 .stream()
                 .map(transaction -> {
                     BankAccount bankAcc=transaction.getBankAccount();
@@ -84,7 +84,7 @@ public class TransactionService {
     }
 
     public List<TransactionDataResponse> findAllTransactionsByUserAndMerchantName(Long userId, String merchantName){
-        return transactionRepository.findAllByApplicationUser_IdAndMerchant_MerchantName(userId, merchantName)
+        return transactionRepository.findAllByApplicationUser_IdAndMerchant_MerchantNameAndProcessed(userId, merchantName,true)
                 .stream()
                 .map(transaction -> {
                     BankAccount bankAcc=transaction.getBankAccount();
@@ -100,7 +100,7 @@ public class TransactionService {
     public List<TransactionDataResponse> findAllTransactionsByUserIdAndService(Long userId, String service){
         return transactionRepository.findByApplicationUser_IdAndProcessed(userId, true)
                 .stream()
-                .filter(transaction -> transaction.getService().contains(service))
+                .filter(transaction -> transaction.getService().toLowerCase().contains(service.toLowerCase()))
                 .map(transaction -> {
                     BankAccount bankAcc=transaction.getBankAccount();
                     Merchant merchant=transaction.getMerchant();
