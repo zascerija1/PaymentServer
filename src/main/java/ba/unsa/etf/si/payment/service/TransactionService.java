@@ -74,8 +74,8 @@ public class TransactionService {
         return optTransaction.orElse(null);
     }
 
-    public List<TransactionDataResponse> findAllTransactionsBetween(Date startDate, Date endDate){
-        return transactionRepository.findAllByCreatedAtBetweenAndProcessed(startDate, endDate,true)
+    public List<TransactionDataResponse> findAllTransactionsByUserAndDateBetween(Long userId, Date startDate, Date endDate){
+        return transactionRepository.findAllByApplicationUser_IdAndCreatedAtBetweenAndProcessed(userId, startDate, endDate,true)
                 .stream()
                 .map(transaction -> {
                     BankAccount bankAcc=transaction.getBankAccount();
@@ -120,4 +120,18 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
+    public List<TransactionDataResponse> findAllTransactionsByUserAndTotalPriceBetween(Long userId, Double minPrice, Double maxPrice){
+        return transactionRepository.findAllByApplicationUser_IdAndTotalPriceBetweenAndProcessed(userId, minPrice, maxPrice,true)
+                .stream()
+                .map(transaction -> {
+                    BankAccount bankAcc=transaction.getBankAccount();
+                    Merchant merchant=transaction.getMerchant();
+                    return new TransactionDataResponse(transaction.getId(),
+                            bankAcc.getCardNumber(),
+                            merchant.getMerchantName(),
+                            transaction.getCreatedAt(), transaction.getTotalPrice(),
+                            transaction.getService());
+                })
+                .collect(Collectors.toList());
+    }
 }
