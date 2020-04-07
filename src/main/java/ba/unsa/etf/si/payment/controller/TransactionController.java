@@ -17,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +41,18 @@ public class TransactionController {
         return transactionService.findAllTransactionsByUserId(currentUser.getId());
     }
 
-    @GetMapping("/recent")
+    @GetMapping("/recent/{days}")
+    public List<TransactionDataResponse> getAllTransactionsBetween(@PathVariable Integer days, @CurrentUser UserPrincipal currentUser){
+        if(days <= 0) throw new BadRequestException("Number of days invalid.");
+        Date endDate = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(endDate);
+        cal.add(Calendar.DATE, days*(-1));
+        Date startDate = cal.getTime();
+        return transactionService.findAllTransactionsByUserAndDateBetween(currentUser.getId(), startDate, endDate);
+    }
+
+    @GetMapping("/date")
     public List<TransactionDataResponse> getAllTransactionsBetweenDates(@Valid @RequestBody DateFilterRequest dateFilterRequest, @CurrentUser UserPrincipal currentUser){
         //validacija
         if(dateFilterRequest.getStartDate().after(dateFilterRequest.getEndDate())){
