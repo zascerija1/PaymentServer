@@ -7,11 +7,21 @@ import java.util.List;
 
 public class MoneyTransferResponse {
     private MoneyTransferStatus moneyTransferStatus;
+    private String message;
     private List<MoneyTransfer> transfers;
 
-    public MoneyTransferResponse(MoneyTransferStatus moneyTransferStatus, List<MoneyTransfer> transfers) {
+    public MoneyTransferResponse(MoneyTransferStatus moneyTransferStatus, String message, List<MoneyTransfer> transfers) {
         this.moneyTransferStatus = moneyTransferStatus;
+        this.message = message;
         this.transfers = transfers;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public MoneyTransferStatus getMoneyTransferStatus() {
