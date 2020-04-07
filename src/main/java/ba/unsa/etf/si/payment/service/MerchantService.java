@@ -20,4 +20,8 @@ public class MerchantService {
     public Merchant save(Merchant merchant){ return merchantRepository.save(merchant);}
 
     public void delete(Long id){ merchantRepository.deleteById(id);}
+
+    public List<Merchant> getAllMerchants(){
+        return merchantRepository.findAll();
+    }
 }
