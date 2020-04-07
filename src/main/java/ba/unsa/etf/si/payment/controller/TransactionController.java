@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -73,7 +74,7 @@ public class TransactionController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{transactionId}")
-    public DeleteTransactionResponse deleteTransaction(@PathVariable Long transactionId){
+    public DeleteTransactionResponse deleteTransaction(@PathVariable UUID transactionId){
         transactionService.delete(transactionId);
         return new DeleteTransactionResponse(true, "Transaction deleted successfully.");
     }
