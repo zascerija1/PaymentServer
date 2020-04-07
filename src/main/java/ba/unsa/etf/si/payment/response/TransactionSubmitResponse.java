@@ -1,16 +1,11 @@
 package ba.unsa.etf.si.payment.response;
 
+import java.util.UUID;
+
 public class TransactionSubmitResponse {
 
-    public Long getTransactionId() {
-        return transactionId;
-    }
 
-    public void setTransactionId(Long transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    private Long transactionId;
+    private UUID transactionId;
 
     public Double getTotalPrice() {
         return totalPrice;
@@ -23,7 +18,7 @@ public class TransactionSubmitResponse {
     private Double totalPrice;
     private String service;
 
-    public TransactionSubmitResponse(Long transactionId, Double amount, String service) {
+    public TransactionSubmitResponse(UUID transactionId, Double amount, String service) {
         this.transactionId = transactionId;
         this.totalPrice = amount;
         this.service = service;
@@ -37,5 +32,13 @@ public class TransactionSubmitResponse {
 
     public void setService(String service) {
         this.service = service;
+    }
+
+    public UUID getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(UUID transactionId) {
+        this.transactionId = transactionId;
     }
 }

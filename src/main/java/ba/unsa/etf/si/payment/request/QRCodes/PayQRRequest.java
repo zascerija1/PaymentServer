@@ -2,6 +2,7 @@ package ba.unsa.etf.si.payment.request.QRCodes;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 public class PayQRRequest {
 
@@ -13,9 +14,9 @@ public class PayQRRequest {
 
     //@NotBlank
     //todo isto razmatranje
-    private Long transactionId;
+    private UUID transactionId;
 
-    public PayQRRequest(Long bankAccountId,Long transactionId) {
+    public PayQRRequest(Long bankAccountId,UUID transactionId) {
         this.bankAccountId = bankAccountId;
         this.transactionId = transactionId;
     }
@@ -28,11 +29,12 @@ public class PayQRRequest {
         this.bankAccountId = bankAccountId;
     }
 
-    public Long getTransactionId() {
+
+    public UUID getTransactionId() {
         return transactionId;
     }
 
-    public void setTransactionId(Long transactionId) {
+    public void setTransactionId(UUID transactionId) {
         this.transactionId = transactionId;
     }
 }

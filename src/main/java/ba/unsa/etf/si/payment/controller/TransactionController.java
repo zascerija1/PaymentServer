@@ -4,6 +4,8 @@ package ba.unsa.etf.si.payment.controller;
 import ba.unsa.etf.si.payment.exception.BadRequestException;
 import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
+import ba.unsa.etf.si.payment.request.filters.DateFilterRequest;
+import ba.unsa.etf.si.payment.request.filters.PriceFilterRequest;
 import ba.unsa.etf.si.payment.response.TransactionDataResponse;
 import ba.unsa.etf.si.payment.response.DeleteTransactionResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
@@ -14,9 +16,11 @@ import ba.unsa.etf.si.payment.service.TransactionService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -38,14 +42,32 @@ public class TransactionController {
     }
 
     @GetMapping("/recent/{days}")
-    public List<TransactionDataResponse> getAllTransactionsBetween(@PathVariable Integer days){
+    public List<TransactionDataResponse> getAllTransactionsBetween(@PathVariable Integer days, @CurrentUser UserPrincipal currentUser){
         if(days <= 0) throw new BadRequestException("Number of days invalid.");
         Date endDate = new Date();
         Calendar cal = Calendar.getInstance();
         cal.setTime(endDate);
         cal.add(Calendar.DATE, days*(-1));
         Date startDate = cal.getTime();
-        return transactionService.findAllTransactionsBetween(startDate, endDate);
+        return transactionService.findAllTransactionsByUserAndDateBetween(currentUser.getId(), startDate, endDate);
+    }
+
+    @GetMapping("/date")
+    public List<TransactionDataResponse> getAllTransactionsBetweenDates(@Valid @RequestBody DateFilterRequest dateFilterRequest, @CurrentUser UserPrincipal currentUser){
+        //validacija
+        if(dateFilterRequest.getStartDate().after(dateFilterRequest.getEndDate())){
+            throw new BadRequestException("Dates not valid");
+        }
+        //ima li još nekih validacija provjeriti
+        return transactionService.findAllTransactionsByUserAndDateBetween(currentUser.getId(), dateFilterRequest.getStartDate(), dateFilterRequest.getEndDate());
+    }
+
+    @GetMapping("/price")
+    public List<TransactionDataResponse> getAllTransactionsBetweenPrices(@Valid @RequestBody PriceFilterRequest priceFilterRequest, @CurrentUser UserPrincipal currentUser){
+        if(priceFilterRequest.getMinPrice() > priceFilterRequest.getMinPrice()){
+            throw new BadRequestException("Prices not valid");
+        }
+        return transactionService.findAllTransactionsByUserAndTotalPriceBetween(currentUser.getId(), priceFilterRequest.getMinPrice(), priceFilterRequest.getMaxPrice());
     }
 
     @GetMapping("/merchant/{merchantName}")
@@ -73,7 +95,7 @@ public class TransactionController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{transactionId}")
-    public DeleteTransactionResponse deleteTransaction(@PathVariable Long transactionId){
+    public DeleteTransactionResponse deleteTransaction(@PathVariable UUID transactionId){
         transactionService.delete(transactionId);
         return new DeleteTransactionResponse(true, "Transaction deleted successfully.");
     }
