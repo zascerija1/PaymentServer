@@ -392,24 +392,50 @@ INSERT INTO public.bank_account_users (id, application_user_id, bank_account_id)
 
 
 INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('cd81a884-78d8-11ea-bc55-0242ac130003', '2020-03-25 14:45:36.674000','2020-03-25 14:45:36.674000',true,'1-1-1-123456781', 'Franck caj (1.0), Torta Havana (1.0)', 43.5,1,6,1) on conflict  on constraint transactions_pkey do nothing;
+('cd81a884-78d8-11ea-bc55-0242ac130003', '2020-03-25 17:45:36.674000','2020-03-25 14:45:36.674000',true,'1-1-1-123456781', 'Franck green tea (1), Cake Havana (1)', 43.5,1,6,1) on conflict  on constraint transactions_pkey do nothing;
 
 
 INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('36f2e7fe-78d6-11ea-bc55-0242ac130003', '2020-03-17 14:45:36.674000','2020-03-17 14:45:36.674000',true,'1-1-1-123456782', 'Sendvic losos (1.0), Coko kroasan (1.0)', 8.5,1,6,4) on conflict  on constraint transactions_pkey do nothing;
+('36f2e7fe-78d6-11ea-bc55-0242ac130003', '2020-03-17 14:45:36.674000','2020-03-17 14:45:36.674000',true,'1-1-1-123456782', 'Sendvic losos (1), Choco croissant (1)', 8.5,1,6,4) on conflict  on constraint transactions_pkey do nothing;
 
 INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('3fc62224-78d6-11ea-bc55-0242ac130003', '2020-03-08 14:45:36.674000','2020-03-08 14:45:36.674000',true,'1-1-1-123456783', 'Pita krompir (1.0), Pizza (2.0)', 4.5,1,7,4) on conflict  on constraint transactions_pkey do nothing;
+('3fc62224-78d6-11ea-bc55-0242ac130003', '2020-03-08 14:45:36.674000','2020-03-08 14:45:36.674000',true,'1-1-1-123456783', 'Potato pie (1), Pizza (2)', 4.5,1,7,4) on conflict  on constraint transactions_pkey do nothing;
 
 INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('4a7097b8-78d6-11ea-bc55-0242ac130003', '2020-03-22 14:45:36.674000','2020-03-22 14:45:36.674000',true,'1-1-1-123456784', 'Tortilja Mexico (1.0), Pileca maslenica (2.0)', 11.0,1,7,5) on conflict  on constraint transactions_pkey do nothing;
+('4a7097b8-78d6-11ea-bc55-0242ac130003', '2020-03-22 09:45:36.674000','2020-03-22 14:45:36.674000',true,'1-1-1-123456784', 'Tortilla Mexico (1), Chicken pie (2)', 11.0,1,7,5) on conflict  on constraint transactions_pkey do nothing;
 
 INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('558f9d4c-78d6-11ea-bc55-0242ac130003', '2020-04-04 14:45:36.674000','2020-04-04 14:45:36.674000',true,'1-1-1-123456785', 'Tortilja Mexico (1.0), Pileca maslenica (2.0)', 11.0,1,7,5) on conflict  on constraint transactions_pkey do nothing;
+('558f9d4c-78d6-11ea-bc55-0242ac130003', '2020-04-04 16:45:36.674000','2020-04-04 14:45:36.674000',true,'1-1-1-123456785', 'Pizza Al Tonno (1), Pizza Quattro Stagioni (2)', 11.0,1,7,5) on conflict  on constraint transactions_pkey do nothing;
 
 INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('5cafe050-78d6-11ea-bc55-0242ac130003', '2020-04-03 14:45:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456786', 'Brasno Klas (15.0), Ulje Floriol (10.0)', 35.70,1,7,8) on conflict  on constraint transactions_pkey do nothing;
+('5cafe050-78d6-11ea-bc55-0242ac130003', '2020-04-03 14:45:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456786', 'Flour Klas (15), Oil Floriol (10)', 35.70,1,7,8) on conflict  on constraint transactions_pkey do nothing;
 
 INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('67df0cd0-78d6-11ea-bc55-0242ac130003', '2020-04-03 14:45:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456787', 'Loyd caj kamilica (1.0), Milka cokolada (10.0)', 10.8,1,7,8) on conflict  on constraint transactions_pkey do nothing;
+('67df0cd0-78d6-11ea-bc55-0242ac130003', '2020-04-03 18:45:30.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456787', 'Loyd tea chamomile (1), Milka chocolate (10)', 10.8,1,7,8) on conflict  on constraint transactions_pkey do nothing;
 
+/*
+ nove transakcije
+ */
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+('b64d78fc-798f-11ea-bc55-0242ac130003', '2020-04-03 17:15:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456788', 'Steak tartare dish (1)', 25.0,1,2,6) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+('b64d7d66-798f-11ea-bc55-0242ac130003', '2020-04-06 14:45:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456789', 'Beef Wellington dish (1)', 30.0,1,2,6) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+('b64d8004-798f-11ea-bc55-0242ac130003', '2020-04-03 10:18:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456791', 'Chicken Alfredo (1)', 4.5,1,2,7) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+('b64d8108-798f-11ea-bc55-0242ac130003', '2020-04-08 11:20:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456792', 'Lip balm Rosal (1)', 5.5,1,7,8) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+('b64d834c-798f-11ea-bc55-0242ac130003', '2020-04-08 13:29:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456793', 'Tomato sauce (1), Pasta penne (1)', 9.5,1,2,2) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+('b64d8446-798f-11ea-bc55-0242ac130003', '2020-04-03 18:02:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456794', 'Puff pastry (3), Raspberry sauce (1), Vanilla sugar (1), Condensed milk (1)', 15.5,1,6,8) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+('b64d866c-798f-11ea-bc55-0242ac130003', '2020-04-08 19:45:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456795', 'Chicken soup (1), Chicken fried steak (1) ', 12.8,1,6,6) on conflict  on constraint transactions_pkey do nothing;
+
+INSERT INTO public.transactions (id, created_at, updated_at, processed, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
+('0ccb3fde-7990-11ea-bc55-0242ac130003', '2020-04-03 20:45:36.674000','2020-04-03 14:45:36.674000',true,'1-1-1-123456796', 'Granny-smith apple (2), Potato ketchup chips (3), Peanut butter (2)', 15.5,1,7,3) on conflict  on constraint transactions_pkey do nothing;
