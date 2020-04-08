@@ -85,7 +85,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.jpg",
                         "/**/*.html",
                         "/**/*.css",
-                        "/**/*.js")
+                        "/**/*.js",
+                        "/swagger-resources/**",
+                        "/swagger-iu.html**",
+                        "webjars/**",
+                        "/v2/api-docs")
                 .permitAll()
                 .antMatchers("/api/auth/**", "/api/recover/**")
                 .permitAll()
@@ -95,6 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .anyRequest()
                 .authenticated();
+
 
         // Add our custom JWT security filter
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -1,22 +1,35 @@
 package ba.unsa.etf.si.payment.model;
 
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Table(name = "transactions")
 @Check(constraints = "total_price >= 0")
 public class Transaction extends AuditModel {
+    /*
     @Id
     @GeneratedValue(generator = "transaction_generator")
     @SequenceGenerator(
             name = "transaction_generator",
-            sequenceName = "transaction_sequence"
+            sequenceName = "transaction_sequence",
+            initialValue = 100
     )
     private Long id;
+
+     */
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    private UUID id;
 
     //todo
     //Ovo ce morati biti nullable jer nemamo odmah podatke o računu
@@ -59,11 +72,11 @@ public class Transaction extends AuditModel {
     public Transaction() {
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

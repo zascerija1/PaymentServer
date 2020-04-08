@@ -1,16 +1,17 @@
 package ba.unsa.etf.si.payment.request.QRCodes;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class CheckBalanceRequest implements Serializable {
     private Long bankAccountId;
-    private Long transactionId;
+    private UUID transactionId;
     private Double totalPrice;
 
     public CheckBalanceRequest() {
     }
 
-    public CheckBalanceRequest(Long bankAccountId, Long transactionId, Double totalPrice) {
+    public CheckBalanceRequest(Long bankAccountId, UUID transactionId, Double totalPrice) {
         this.bankAccountId = bankAccountId;
         this.transactionId = transactionId;
         this.totalPrice = totalPrice;
@@ -24,19 +25,19 @@ public class CheckBalanceRequest implements Serializable {
         this.bankAccountId = bankAccountId;
     }
 
-    public Long getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(Long transactionId) {
-        this.transactionId = transactionId;
-    }
-
     public Double getTotalPrice() {
         return totalPrice;
     }
 
     public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public UUID getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(UUID transactionId) {
+        this.transactionId = transactionId;
     }
 }

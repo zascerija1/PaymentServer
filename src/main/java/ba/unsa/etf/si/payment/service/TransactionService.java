@@ -8,13 +8,16 @@ import ba.unsa.etf.si.payment.repository.BankAccountUserRepository;
 import ba.unsa.etf.si.payment.repository.TransactionRepository;
 import ba.unsa.etf.si.payment.response.TransactionDataResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class TransactionService {
     private final TransactionRepository transactionRepository;
 
@@ -33,68 +36,36 @@ public class TransactionService {
 
     public  Transaction save(Transaction transaction){ return transactionRepository.save(transaction); }
 
-    public void delete(Long id){ transactionRepository.deleteById(id);}
+    public void delete(UUID id){ transactionRepository.deleteById(id);}
 
     public List<TransactionDataResponse> findAllTransactionsByUserId(Long id){
-        return  transactionRepository.findByApplicationUser_IdAndProcessed(id,true)
-                .stream()
-                .map(transaction -> {
-                    BankAccount bankAcc=transaction.getBankAccount();
-                    Merchant merchant=transaction.getMerchant();
-                    return new TransactionDataResponse(bankAcc.getCardNumber(),
-                            merchant.getMerchantName(),
-                            transaction.getCreatedAt(), transaction.getTotalPrice(),
-                            transaction.getService());
-                })
-                .collect(Collectors.toList());
+        return  getTransactionData(transactionRepository
+                .findByApplicationUser_IdAndProcessed(id,true));
+
     }
 
     public List<TransactionDataResponse> findAllTransactionsByBankAccount(Long bankAccountId){
 
-        return  transactionRepository.findAllByBankAccount_IdAndProcessed(bankAccountId,true)
-                .stream()
-                .map(transaction -> {
-                    BankAccount bankAcc=transaction.getBankAccount();
-                    Merchant merchant=transaction.getMerchant();
-                    return new TransactionDataResponse(bankAcc.getCardNumber(),
-                            merchant.getMerchantName(),
-                            transaction.getCreatedAt(), transaction.getTotalPrice(),
-                            transaction.getService());
-                })
-                .collect(Collectors.toList());
+        return  getTransactionData(transactionRepository
+                .findAllByBankAccount_IdAndProcessed(bankAccountId,true));
+
     }
 
-    public Transaction findByIdAndApplicationUser_Id(Long transactionId, Long applicationUserId){
+    public Transaction findByIdAndApplicationUser_Id(UUID transactionId, Long applicationUserId){
         Optional<Transaction> optTransaction= transactionRepository.findByIdAndApplicationUser_Id(transactionId,applicationUserId);
         return optTransaction.orElse(null);
     }
 
-    public List<TransactionDataResponse> findAllTransactionsBetween(Date startDate, Date endDate){
-        return transactionRepository.findAllByCreatedAtBetweenAndProcessed(startDate, endDate,true)
-                .stream()
-                .map(transaction -> {
-                    BankAccount bankAcc=transaction.getBankAccount();
-                    Merchant merchant=transaction.getMerchant();
-                    return new TransactionDataResponse(bankAcc.getCardNumber(),
-                            merchant.getMerchantName(),
-                            transaction.getCreatedAt(), transaction.getTotalPrice(),
-                            transaction.getService());
-                })
-                .collect(Collectors.toList());
+    public List<TransactionDataResponse> findAllTransactionsByUserAndDateBetween(Long userId, Date startDate, Date endDate){
+        return getTransactionData(transactionRepository
+                .findAllByApplicationUser_IdAndCreatedAtBetweenAndProcessed(userId, startDate, endDate,true));
+
     }
 
     public List<TransactionDataResponse> findAllTransactionsByUserAndMerchantName(Long userId, String merchantName){
-        return transactionRepository.findAllByApplicationUser_IdAndMerchant_MerchantNameAndProcessed(userId, merchantName,true)
-                .stream()
-                .map(transaction -> {
-                    BankAccount bankAcc=transaction.getBankAccount();
-                    Merchant merchant=transaction.getMerchant();
-                    return new TransactionDataResponse(bankAcc.getCardNumber(),
-                            merchant.getMerchantName(),
-                            transaction.getCreatedAt(), transaction.getTotalPrice(),
-                            transaction.getService());
-                })
-                .collect(Collectors.toList());
+        return getTransactionData(transactionRepository
+                .findAllByApplicationUser_IdAndMerchant_MerchantNameAndProcessed(userId, merchantName,true));
+
     }
 
     public List<TransactionDataResponse> findAllTransactionsByUserIdAndService(Long userId, String service){
@@ -104,7 +75,8 @@ public class TransactionService {
                 .map(transaction -> {
                     BankAccount bankAcc=transaction.getBankAccount();
                     Merchant merchant=transaction.getMerchant();
-                    return new TransactionDataResponse(bankAcc.getCardNumber(),
+                    return new TransactionDataResponse(transaction.getId(),
+                            bankAcc.getCardNumber(),
                             merchant.getMerchantName(),
                             transaction.getCreatedAt(), transaction.getTotalPrice(),
                             transaction.getService());
@@ -112,4 +84,25 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
+    public List<TransactionDataResponse> findAllTransactionsByUserAndTotalPriceBetween(Long userId, Double minPrice, Double maxPrice){
+        return getTransactionData(transactionRepository
+                .findAllByApplicationUser_IdAndTotalPriceBetweenAndProcessed(userId, minPrice, maxPrice,true));
+
+    }
+
+    private List<TransactionDataResponse> getTransactionData(List<Transaction> transactionList){
+        return transactionList
+                .stream()
+                .map(transaction -> {
+                    BankAccount bankAcc=transaction.getBankAccount();
+                    Merchant merchant=transaction.getMerchant();
+                    return new TransactionDataResponse(transaction.getId(),
+                            bankAcc.getCardNumber(),
+                            merchant.getMerchantName(),
+                            transaction.getCreatedAt(), transaction.getTotalPrice(),
+                            transaction.getService());
+                })
+                .collect(Collectors.toList());
+
+    }
 }

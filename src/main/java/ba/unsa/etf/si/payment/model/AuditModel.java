@@ -1,5 +1,6 @@
 package ba.unsa.etf.si.payment.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -17,11 +18,13 @@ import java.util.Date;
 )
 public abstract class AuditModel implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone="Europe/Sarajevo")
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
     private Date createdAt;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(timezone="Europe/Sarajevo")
     @Column(name = "updated_at", nullable = false)
     @LastModifiedDate
     private Date updatedAt;
