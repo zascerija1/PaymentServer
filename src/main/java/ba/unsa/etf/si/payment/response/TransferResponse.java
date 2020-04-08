@@ -1,15 +1,15 @@
 package ba.unsa.etf.si.payment.response;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public class TransferResponse {
     private Long id;
     private String receives;
     private String sends;
-    private LocalDateTime dateAndTime;
+    private Date dateAndTime;
     private Double moneyAmount;
 
-    public TransferResponse(Long id, String receives, String sends, LocalDateTime dateAndTime, Double moneyAmount) {
+    public TransferResponse(Long id, String receives, String sends, Date dateAndTime, Double moneyAmount) {
         this.id = id;
         this.receives = receives;
         this.sends = sends;
@@ -41,11 +41,11 @@ public class TransferResponse {
         this.sends = sends;
     }
 
-    public LocalDateTime getDateAndTime() {
+    public Date getDateAndTime() {
         return dateAndTime;
     }
 
-    public void setDateAndTime(LocalDateTime dateAndTime) {
+    public void setDateAndTime(Date dateAndTime) {
         this.dateAndTime = dateAndTime;
     }
 

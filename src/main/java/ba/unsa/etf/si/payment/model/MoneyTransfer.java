@@ -30,10 +30,6 @@ public class MoneyTransfer extends AuditModel {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private BankAccount sends;
 
-    @Column(name = "date_and_time", nullable = false, updatable = false)
-    @JsonFormat(pattern="dd.MM.yyyy HH:mm:ss")
-    private LocalDateTime dateAndTime;
-
     @Column(name = "money_amount", nullable = false)
     private Double moneyAmount;
 
@@ -59,14 +55,6 @@ public class MoneyTransfer extends AuditModel {
 
     public void setSends(BankAccount sends) {
         this.sends = sends;
-    }
-
-    public LocalDateTime getDateAndTime() {
-        return dateAndTime;
-    }
-
-    public void setDateAndTime(LocalDateTime dateAndTime) {
-        this.dateAndTime = dateAndTime;
     }
 
     public Double getMoneyAmount() {

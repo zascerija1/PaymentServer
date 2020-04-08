@@ -28,7 +28,7 @@ public class MoneyTransferService {
             @Override
             public void accept(MoneyTransfer moneyTransfer) {
                 transfers.add(new TransferResponse(moneyTransfer.getId(),moneyTransfer.getReceives().getCardNumber(),
-                        moneyTransfer.getSends().getCardNumber(),moneyTransfer.getDateAndTime(),
+                        moneyTransfer.getSends().getCardNumber(),moneyTransfer.getCreatedAt(),
                         moneyTransfer.getMoneyAmount()));
             }
         });
@@ -41,7 +41,7 @@ public class MoneyTransferService {
             @Override
             public void accept(MoneyTransfer moneyTransfer) {
                 transfers.add(new TransferResponse(moneyTransfer.getId(),moneyTransfer.getReceives().getCardNumber(),
-                        moneyTransfer.getSends().getCardNumber(),moneyTransfer.getDateAndTime(),
+                        moneyTransfer.getSends().getCardNumber(),moneyTransfer.getCreatedAt(),
                         moneyTransfer.getMoneyAmount()));
             }
         });
