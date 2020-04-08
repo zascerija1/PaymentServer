@@ -28,12 +28,10 @@ public class TransactionController {
 
     private final TransactionService transactionService;
     private final BankAccountUserService bankAccountUserService;
-    private final BankAccountService bankAccountService;
 
     public TransactionController(TransactionService transactionService, BankAccountUserService bankAccountUserService, BankAccountService bankAccountService) {
         this.transactionService = transactionService;
         this.bankAccountUserService = bankAccountUserService;
-        this.bankAccountService = bankAccountService;
     }
 
     @GetMapping("/all")
@@ -55,6 +53,8 @@ public class TransactionController {
     @GetMapping("/date")
     public List<TransactionDataResponse> getAllTransactionsBetweenDates(@Valid @RequestBody DateFilterRequest dateFilterRequest, @CurrentUser UserPrincipal currentUser){
         //validacija
+        if(dateFilterRequest.getStartDate()==null || dateFilterRequest.getEndDate()==null)
+            throw new BadRequestException("Request not valid!");
         if(dateFilterRequest.getStartDate().after(dateFilterRequest.getEndDate())){
             throw new BadRequestException("Dates not valid");
         }
@@ -64,6 +64,8 @@ public class TransactionController {
 
     @GetMapping("/price")
     public List<TransactionDataResponse> getAllTransactionsBetweenPrices(@Valid @RequestBody PriceFilterRequest priceFilterRequest, @CurrentUser UserPrincipal currentUser){
+        if(priceFilterRequest.getMinPrice()==null || priceFilterRequest.getMaxPrice()==null)
+            throw new BadRequestException("Request not valid");
         if(priceFilterRequest.getMinPrice() > priceFilterRequest.getMinPrice()){
             throw new BadRequestException("Prices not valid");
         }
@@ -80,7 +82,7 @@ public class TransactionController {
         return transactionService.findAllTransactionsByUserIdAndService(currentUser.getId(), service);
     }
 
-    @GetMapping("/{bankAccountUserId}")
+    @GetMapping("/bankAccount/{bankAccountUserId}")
     public List<TransactionDataResponse> getAllTransactionsByBankAccount(@PathVariable Long bankAccountUserId,
                                                                          @CurrentUser UserPrincipal currentUser){
         BankAccountUser bankAccountUser=bankAccountUserService.
