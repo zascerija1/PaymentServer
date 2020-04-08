@@ -6,10 +6,13 @@ import ba.unsa.etf.si.payment.repository.BankAccountUserRepository;
 import ba.unsa.etf.si.payment.repository.MoneyTransferRepository;
 import ba.unsa.etf.si.payment.response.MoneyTransferResponse;
 import ba.unsa.etf.si.payment.response.PaymentResponse;
+import ba.unsa.etf.si.payment.response.TransferResponse;
 import ba.unsa.etf.si.payment.util.PaymentStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Service
 public class MoneyTransferService {
@@ -18,10 +21,30 @@ public class MoneyTransferService {
     public MoneyTransferService(MoneyTransferRepository moneyTransferRepository) {
         this.moneyTransferRepository = moneyTransferRepository;
     }
-    public List<MoneyTransfer> findAllReceives(BankAccount bankAccount){
-        return moneyTransferRepository.findMoneyTransferByReceives(bankAccount);
+    public List<TransferResponse> findAllReceives(BankAccount bankAccount){
+        List<TransferResponse> transfers = new ArrayList<>();
+        List<MoneyTransfer> moneyTransfers = moneyTransferRepository.findMoneyTransferByReceives(bankAccount);
+        moneyTransfers.forEach(new Consumer<MoneyTransfer>() {
+            @Override
+            public void accept(MoneyTransfer moneyTransfer) {
+                transfers.add(new TransferResponse(moneyTransfer.getId(),moneyTransfer.getReceives().getCardNumber(),
+                        moneyTransfer.getSends().getCardNumber(),moneyTransfer.getDateAndTime(),
+                        moneyTransfer.getMoneyAmount()));
+            }
+        });
+        return transfers;
     }
-    public List<MoneyTransfer> findAllSends(BankAccount bankAccount){
-        return moneyTransferRepository.findMoneyTransferBySends(bankAccount);
+    public List<TransferResponse> findAllSends(BankAccount bankAccount){
+        List<TransferResponse> transfers = new ArrayList<>();
+        List<MoneyTransfer> moneyTransfers = moneyTransferRepository.findMoneyTransferBySends(bankAccount);
+        moneyTransfers.forEach(new Consumer<MoneyTransfer>() {
+            @Override
+            public void accept(MoneyTransfer moneyTransfer) {
+                transfers.add(new TransferResponse(moneyTransfer.getId(),moneyTransfer.getReceives().getCardNumber(),
+                        moneyTransfer.getSends().getCardNumber(),moneyTransfer.getDateAndTime(),
+                        moneyTransfer.getMoneyAmount()));
+            }
+        });
+        return transfers;
     }
 }

@@ -1,6 +1,5 @@
 package ba.unsa.etf.si.payment.response;
 
-import ba.unsa.etf.si.payment.model.MoneyTransfer;
 import ba.unsa.etf.si.payment.util.MoneyTransferStatus;
 
 import java.util.List;
@@ -8,9 +7,9 @@ import java.util.List;
 public class MoneyTransferResponse {
     private MoneyTransferStatus moneyTransferStatus;
     private String message;
-    private List<MoneyTransfer> transfers;
+    private List<TransferResponse> transfers;
 
-    public MoneyTransferResponse(MoneyTransferStatus moneyTransferStatus, String message, List<MoneyTransfer> transfers) {
+    public MoneyTransferResponse(MoneyTransferStatus moneyTransferStatus, String message, List<TransferResponse> transfers) {
         this.moneyTransferStatus = moneyTransferStatus;
         this.message = message;
         this.transfers = transfers;
@@ -32,11 +31,11 @@ public class MoneyTransferResponse {
         this.moneyTransferStatus = moneyTransferStatus;
     }
 
-    public List<MoneyTransfer> getTransfers() {
+    public List<TransferResponse> getTransfers() {
         return transfers;
     }
 
-    public void setTransfers(List<MoneyTransfer> transfers) {
+    public void setTransfers(List<TransferResponse> transfers) {
         this.transfers = transfers;
     }
 }
