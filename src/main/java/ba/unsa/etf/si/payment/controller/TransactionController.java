@@ -50,7 +50,7 @@ public class TransactionController {
         return transactionService.findAllTransactionsByUserAndDateBetween(currentUser.getId(), startDate, endDate);
     }
 
-    @GetMapping("/date")
+    @PostMapping("/date")
     public List<TransactionDataResponse> getAllTransactionsBetweenDates(@Valid @RequestBody DateFilterRequest dateFilterRequest, @CurrentUser UserPrincipal currentUser){
         //validacija
         if(dateFilterRequest.getStartDate()==null || dateFilterRequest.getEndDate()==null)
@@ -72,7 +72,7 @@ public class TransactionController {
         return transactionService.findAllTransactionsByUserAndTotalPriceBetween(currentUser.getId(), priceFilterRequest.getMinPrice(), priceFilterRequest.getMaxPrice());
     }
 
-    @PostMapping("/merchant/{merchantName}")
+    @GetMapping("/merchant/{merchantName}")
     public List<TransactionDataResponse> getAllTransactionsByMerchantName(@PathVariable String merchantName, @CurrentUser UserPrincipal currentUser){
         return transactionService.findAllTransactionsByUserAndMerchantName(currentUser.getId(), merchantName);
     }
