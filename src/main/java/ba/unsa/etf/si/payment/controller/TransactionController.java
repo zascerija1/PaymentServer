@@ -62,7 +62,7 @@ public class TransactionController {
         return transactionService.findAllTransactionsByUserAndDateBetween(currentUser.getId(), dateFilterRequest.getStartDate(), dateFilterRequest.getEndDate());
     }
 
-    @GetMapping("/price")
+    @PostMapping("/price")
     public List<TransactionDataResponse> getAllTransactionsBetweenPrices(@Valid @RequestBody PriceFilterRequest priceFilterRequest, @CurrentUser UserPrincipal currentUser){
         if(priceFilterRequest.getMinPrice()==null || priceFilterRequest.getMaxPrice()==null)
             throw new BadRequestException("Request not valid");
@@ -72,7 +72,7 @@ public class TransactionController {
         return transactionService.findAllTransactionsByUserAndTotalPriceBetween(currentUser.getId(), priceFilterRequest.getMinPrice(), priceFilterRequest.getMaxPrice());
     }
 
-    @GetMapping("/merchant/{merchantName}")
+    @PostMapping("/merchant/{merchantName}")
     public List<TransactionDataResponse> getAllTransactionsByMerchantName(@PathVariable String merchantName, @CurrentUser UserPrincipal currentUser){
         return transactionService.findAllTransactionsByUserAndMerchantName(currentUser.getId(), merchantName);
     }
