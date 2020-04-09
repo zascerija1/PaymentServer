@@ -48,7 +48,10 @@ public class TestRequest {
     @JsonFormat(pattern="dd.MM.yyyy hh:mm:ss",timezone="Europe/Sarajevo")
     private Date testDate;
 
-    public TestRequest(String testString, Double testDouble, Long testLong, UUID testUUID, Boolean testBool, Integer testInteger, Date testDate) {
+    public TestRequest() {
+    }
+
+    public TestRequest(@NotBlank String testString, @NotNull @DecimalMin("0.0") Double testDouble, @NotNull @Min(0) Long testLong, @NotNull UUID testUUID, @NotNull Boolean testBool, @NotNull @Min(0) Integer testInteger, @NotNull Date testDate) {
         this.testString = testString;
         this.testDouble = testDouble;
         this.testLong = testLong;
