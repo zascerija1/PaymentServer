@@ -1,6 +1,9 @@
 package ba.unsa.etf.si.payment.request.QRCodes;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 public class DynamicQRRequest {
 
@@ -15,8 +18,12 @@ public class DynamicQRRequest {
     @NotBlank
     private String service;
 
+    @NotNull
+    @DecimalMin("0.0")
     private Double totalPrice;
 
+    @NotNull
+    @Min(0)
     private Long bankAccountId;
 
     public DynamicQRRequest(@NotBlank String receiptId, @NotBlank String businessName, @NotBlank String service,  Double amount, Long bankAccountID) {
