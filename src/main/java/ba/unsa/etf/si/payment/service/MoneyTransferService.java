@@ -2,19 +2,17 @@ package ba.unsa.etf.si.payment.service;
 
 import ba.unsa.etf.si.payment.model.BankAccount;
 import ba.unsa.etf.si.payment.model.MoneyTransfer;
-import ba.unsa.etf.si.payment.repository.BankAccountUserRepository;
 import ba.unsa.etf.si.payment.repository.MoneyTransferRepository;
-import ba.unsa.etf.si.payment.response.MoneyTransferResponse;
-import ba.unsa.etf.si.payment.response.PaymentResponse;
-import ba.unsa.etf.si.payment.response.TransferResponse;
-import ba.unsa.etf.si.payment.util.PaymentStatus;
+import ba.unsa.etf.si.payment.response.Transfer.TransferResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 @Service
+@Transactional
 public class MoneyTransferService {
     private final MoneyTransferRepository moneyTransferRepository;
 
@@ -46,5 +44,9 @@ public class MoneyTransferService {
             }
         });
         return transfers;
+    }
+
+    public MoneyTransfer save(MoneyTransfer moneyTransfer){
+        return moneyTransferRepository.save(moneyTransfer);
     }
 }
