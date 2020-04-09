@@ -5,6 +5,7 @@ import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
 import ba.unsa.etf.si.payment.model.ApplicationUser;
 import ba.unsa.etf.si.payment.model.BankAccount;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
+import ba.unsa.etf.si.payment.request.BankAccountRequest;
 import ba.unsa.etf.si.payment.response.ApiResponse;
 import ba.unsa.etf.si.payment.response.BankAccountDataResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
@@ -12,8 +13,6 @@ import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.ApplicationUserService;
 import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
-import ba.unsa.etf.si.payment.util.PaymentStatus;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -41,8 +40,8 @@ public class BankAccountController {
 
     //Add account
     @PostMapping("/add")
-    public ApiResponse addBankAccount(@Valid @RequestBody BankAccount bankAccount, @CurrentUser UserPrincipal currentUser) {
-        List<BankAccount> bankAccounts=bankAccountService.find(bankAccount.getCvc(), bankAccount.getCardNumber());
+    public ApiResponse addBankAccount(@Valid @RequestBody BankAccountRequest bankAccountRequest, @CurrentUser UserPrincipal currentUser) {
+        List<BankAccount> bankAccounts=bankAccountService.find(bankAccountRequest.getCvc(), bankAccountRequest.getCardNumber());
         if(bankAccounts.isEmpty()){
             throw new ResourceNotFoundException("Bank account is not valid!");
         }

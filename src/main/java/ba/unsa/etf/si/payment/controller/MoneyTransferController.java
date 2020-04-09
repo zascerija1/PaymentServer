@@ -15,35 +15,52 @@ import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
 import ba.unsa.etf.si.payment.service.MoneyTransferService;
 import ba.unsa.etf.si.payment.util.MoneyTransferStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Collections;
-
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/transfers")
+@RequestMapping("/api/accounts/moneyTransfer")
 public class MoneyTransferController {
-
+    private final MoneyTransferService moneyTransferService;
     private final BankAccountUserService bankAccountUserService;
     private final ApplicationUserService applicationUserService;
     private final BankAccountService bankAccountService;
-    private final MoneyTransferService moneyTransferService;
 
-    public MoneyTransferController(BankAccountUserService bankAccountUserService, ApplicationUserService applicationUserService, BankAccountService bankAccountService, MoneyTransferService moneyTransferService) {
+    public MoneyTransferController(MoneyTransferService moneyTransferService, BankAccountUserService bankAccountUserService, ApplicationUserService applicationUserService, BankAccountService bankAccountService) {
+        this.moneyTransferService = moneyTransferService;
         this.bankAccountUserService = bankAccountUserService;
         this.applicationUserService = applicationUserService;
         this.bankAccountService = bankAccountService;
-        this.moneyTransferService = moneyTransferService;
     }
 
-
+    @GetMapping("/allReceives/{bankAccountUserId}")
+    public MoneyTransferResponse getAllReceives(@PathVariable Long bankAccountUserId, @CurrentUser UserPrincipal currentUser){
+        if(!bankAccountUserService.existsByIdAndUserId(bankAccountUserId,currentUser.getId()))
+            return new MoneyTransferResponse(MoneyTransferStatus.CANCELED,"This account does not belong to this user!",null);
+        else{
+            List<TransferResponse> moneyTransfers;
+            BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(bankAccountUserId);
+            moneyTransfers = moneyTransferService.findAllReceives(bankAccountUser.getBankAccount());
+            return new MoneyTransferResponse(MoneyTransferStatus.OK,"All payments to this account", moneyTransfers);
+        }
+    }
+    @GetMapping("/allSends/{bankAccountUserId}")
+    public MoneyTransferResponse getAllSends(@PathVariable Long bankAccountUserId, @CurrentUser UserPrincipal currentUser){
+        if(!bankAccountUserService.existsByIdAndUserId(bankAccountUserId,currentUser.getId()))
+            return new MoneyTransferResponse(MoneyTransferStatus.CANCELED,"This account does not belong to this user!",null);
+        else{
+            List<TransferResponse> moneyTransfers;
+            BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(bankAccountUserId);
+            moneyTransfers = moneyTransferService.findAllSends(bankAccountUser.getBankAccount());
+            return new MoneyTransferResponse(MoneyTransferStatus.OK,"All payments from this account", moneyTransfers);
+        }
+    }
     @PostMapping("/outerTransfer")
     public MoneyTransferResponse makeOuterTransfer(@Valid @RequestBody MoneyTransferRequest moneyTransferRequest,
-                                                  @CurrentUser UserPrincipal userPrincipal) {
+                                                   @CurrentUser UserPrincipal userPrincipal) {
         //todo validacije
         //Onaj ko salje zahtjev on daje novac, pa je on source
         ApplicationUser user = applicationUserService.find(userPrincipal.getId());
@@ -91,12 +108,12 @@ public class MoneyTransferController {
 
     @PostMapping("/innerTransfer")
     public MoneyTransferResponse makeInnerTransfer(@Valid @RequestBody MoneyTransferInRequest moneyTransferInRequest,
-                                                  @CurrentUser UserPrincipal userPrincipal) {
+                                                   @CurrentUser UserPrincipal userPrincipal) {
 
         //najlakse bilo napraviti request pri cemu je id vlasnika oba racuna isti
         //to je jedina razlika u odnosu na outer
         MoneyTransferRequest moneyTransferRequest = new MoneyTransferRequest(userPrincipal.getId(),moneyTransferInRequest.getSourceBankAccount(),
-        moneyTransferInRequest.getDestinationBankAccount(), moneyTransferInRequest.getAmount());
+                moneyTransferInRequest.getDestinationBankAccount(), moneyTransferInRequest.getAmount());
         return processTheTransfer(moneyTransferRequest, userPrincipal.getId());
 
 
@@ -129,7 +146,7 @@ public class MoneyTransferController {
         //todo save
         //dodati historiju transfera
         MoneyTransfer moneyTransfer = new MoneyTransfer(source, dest, moneyTransferRequest.getAmount());
-       MoneyTransfer moneyTransfer1= moneyTransferService.save(moneyTransfer);
+        MoneyTransfer moneyTransfer1= moneyTransferService.save(moneyTransfer);
         TransferResponse transferResponse=new TransferResponse(moneyTransfer1.getId(), dest.getCardNumber(),
                 source.getCardNumber(), moneyTransfer1.getCreatedAt(),moneyTransferRequest.getAmount());
 
