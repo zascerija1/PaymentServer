@@ -3,7 +3,7 @@ package ba.unsa.etf.si.payment.service;
 import ba.unsa.etf.si.payment.model.BankAccount;
 import ba.unsa.etf.si.payment.model.MoneyTransfer;
 import ba.unsa.etf.si.payment.repository.MoneyTransferRepository;
-import ba.unsa.etf.si.payment.response.Transfer.TransferResponse;
+import ba.unsa.etf.si.payment.response.transferResponse.TransferResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

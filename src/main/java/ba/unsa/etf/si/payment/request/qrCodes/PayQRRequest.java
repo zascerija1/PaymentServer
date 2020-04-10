@@ -1,7 +1,5 @@
-package ba.unsa.etf.si.payment.request.QRCodes;
+package ba.unsa.etf.si.payment.request.qrCodes;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 public class PayQRRequest {

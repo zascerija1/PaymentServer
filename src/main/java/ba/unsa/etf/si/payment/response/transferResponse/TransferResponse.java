@@ -1,4 +1,4 @@
-package ba.unsa.etf.si.payment.response.Transfer;
+package ba.unsa.etf.si.payment.response.transferResponse;
 
 import java.util.Date;
 import java.util.UUID;

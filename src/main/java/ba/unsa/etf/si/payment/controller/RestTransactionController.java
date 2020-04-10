@@ -7,7 +7,7 @@ import ba.unsa.etf.si.payment.model.ApplicationUser;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
 import ba.unsa.etf.si.payment.model.Merchant;
 import ba.unsa.etf.si.payment.model.Transaction;
-import ba.unsa.etf.si.payment.request.QRCodes.*;
+import ba.unsa.etf.si.payment.request.qrCodes.*;
 import ba.unsa.etf.si.payment.request.TransacationSuccessRequest;
 import ba.unsa.etf.si.payment.response.*;
 import ba.unsa.etf.si.payment.security.CurrentUser;

@@ -1,7 +1,7 @@
 package ba.unsa.etf.si.payment.service;
 
 
-import ba.unsa.etf.si.payment.request.QRCodes.StaticQRRequest;
+import ba.unsa.etf.si.payment.request.qrCodes.StaticQRRequest;
 import ba.unsa.etf.si.payment.request.TransacationSuccessRequest;
 import ba.unsa.etf.si.payment.response.MainInfoResponse;
 import ba.unsa.etf.si.payment.response.Post;

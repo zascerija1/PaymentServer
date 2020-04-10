@@ -1,4 +1,4 @@
-package ba.unsa.etf.si.payment.request.QRCodes;
+package ba.unsa.etf.si.payment.request.qrCodes;
 
 
 import java.io.Serializable;

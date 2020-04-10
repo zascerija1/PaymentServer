@@ -1,6 +1,5 @@
-package ba.unsa.etf.si.payment.response.Transfer;
+package ba.unsa.etf.si.payment.response.transferResponse;
 
-import ba.unsa.etf.si.payment.response.Transfer.TransferResponse;
 import ba.unsa.etf.si.payment.util.MoneyTransferStatus;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package ba.unsa.etf.si.payment.request.Transfer;
+package ba.unsa.etf.si.payment.request.transferRequest;
 
 public class MoneyTransferInRequest {
     private Long sourceBankAccount;
