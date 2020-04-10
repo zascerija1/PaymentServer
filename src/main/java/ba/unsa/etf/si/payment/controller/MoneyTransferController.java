@@ -55,7 +55,7 @@ public class MoneyTransferController {
             List<TransferResponse> moneyTransfers;
             BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(bankAccountUserId);
             moneyTransfers = moneyTransferService.findAllSends(bankAccountUser.getBankAccount());
-            return new MoneyTransferResponse(MoneyTransferStatus.OK,"All payments from this account", moneyTransfers);
+            return new MoneyTransferResponse(MoneyTransferStatus.OK,"All money transfers from this account", moneyTransfers);
         }
     }
     @PostMapping("/outerTransfer")
@@ -65,45 +65,9 @@ public class MoneyTransferController {
         //Onaj ko salje zahtjev on daje novac, pa je on source
         ApplicationUser user = applicationUserService.find(userPrincipal.getId());
 
-        if (!moneyTransferRequest.getAnswer().equals(user.getAnswer().getText())) {
+        if (!moneyTransferRequest.getAnswer().equals(user.getAnswer().getText()))
             return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Unauthorized request",null);
-
-        }
-
-            /*
-
-            BankAccountUser bankAccountUserSource = bankAccountUserService
-                    .findBankAccountUserByIdAndApplicationUserId(moneyTransferRequest.getSends(),
-                            userPrincipal.getId());
-            BankAccountUser bankAccountUserDest = bankAccountUserService
-                    .findBankAccountUserByIdAndApplicationUserId(moneyTransferRequest.getReceives(),
-                            moneyTransferRequest.getDestAccountOwnerId());
-            if (bankAccountUserSource == null)
-                return new TransferDataResponse(MoneyTransferStatus.CANCELED, "Bank account intended to be the source of funds does not belong " +
-                        "to this user!");
-
-            if (bankAccountUserDest == null)
-                return new TransferDataResponse(MoneyTransferStatus.CANCELED, "Bank account intended to be the destination of funds does not belong " +
-                        "to the user whose id was provided!");
-            BankAccount source = bankAccountUserSource.getBankAccount();
-            BankAccount dest = bankAccountUserDest.getBankAccount();
-            if (source.getBalance() < moneyTransferRequest.getAmount())
-                return new TransferDataResponse(MoneyTransferStatus.CANCELED, "Not enough funds to proceed with transfer!");
-
-            dest.setBalance(dest.getBalance() + moneyTransferRequest.getAmount());
-            source.setBalance(source.getBalance() - moneyTransferRequest.getAmount());
-            bankAccountService.save(dest);
-            bankAccountService.save(source);
-
-            //todo save
-            //dodati historiju transfera
-            MoneyTransfer moneyTransfer = new MoneyTransfer(source, dest, moneyTransferRequest.getAmount());
-            moneyTransferService.save(moneyTransfer);
-
-            return new TransferDataResponse(MoneyTransferStatus.OK, dest.getCardNumber(), source.getCardNumber(), new Date(),
-                    "Successfully transfered funds!");*/
         return processTheTransfer(moneyTransferRequest, userPrincipal.getId());
-
     }
 
     @PostMapping("/innerTransfer")
@@ -115,7 +79,6 @@ public class MoneyTransferController {
         MoneyTransferRequest moneyTransferRequest = new MoneyTransferRequest(userPrincipal.getId(),moneyTransferInRequest.getSourceBankAccount(),
                 moneyTransferInRequest.getDestinationBankAccount(), moneyTransferInRequest.getAmount());
         return processTheTransfer(moneyTransferRequest, userPrincipal.getId());
-
 
     }
 
@@ -143,15 +106,12 @@ public class MoneyTransferController {
         bankAccountService.save(dest);
         bankAccountService.save(source);
 
-        //todo save
-        //dodati historiju transfera
-        MoneyTransfer moneyTransfer = new MoneyTransfer(source, dest, moneyTransferRequest.getAmount());
-        MoneyTransfer moneyTransfer1= moneyTransferService.save(moneyTransfer);
-        TransferResponse transferResponse=new TransferResponse(moneyTransfer1.getId(), dest.getCardNumber(),
-                source.getCardNumber(), moneyTransfer1.getCreatedAt(),moneyTransferRequest.getAmount());
+        MoneyTransfer moneyTransfer= moneyTransferService
+                .save(new MoneyTransfer(source, dest, moneyTransferRequest.getAmount()));
+        TransferResponse transferResponse=new TransferResponse(moneyTransfer.getId(), dest.getCardNumber(),
+                source.getCardNumber(), moneyTransfer.getCreatedAt(),moneyTransferRequest.getAmount());
 
         return new MoneyTransferResponse(MoneyTransferStatus.OK,
                 "Successfully transfered funds!", Collections.singletonList(transferResponse));
-
     }
 }

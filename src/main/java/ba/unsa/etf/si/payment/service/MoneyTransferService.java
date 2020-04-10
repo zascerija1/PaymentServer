@@ -22,14 +22,9 @@ public class MoneyTransferService {
     public List<TransferResponse> findAllReceives(BankAccount bankAccount){
         List<TransferResponse> transfers = new ArrayList<>();
         List<MoneyTransfer> moneyTransfers = moneyTransferRepository.findMoneyTransferByReceives(bankAccount);
-        moneyTransfers.forEach(new Consumer<MoneyTransfer>() {
-            @Override
-            public void accept(MoneyTransfer moneyTransfer) {
-                transfers.add(new TransferResponse(moneyTransfer.getId(),moneyTransfer.getReceives().getCardNumber(),
-                        moneyTransfer.getSends().getCardNumber(),moneyTransfer.getCreatedAt(),
-                        moneyTransfer.getMoneyAmount()));
-            }
-        });
+        moneyTransfers.forEach(moneyTransfer -> transfers.add(new TransferResponse(moneyTransfer.getId(),moneyTransfer.getReceives().getCardNumber(),
+                moneyTransfer.getSends().getCardNumber(),moneyTransfer.getCreatedAt(),
+                moneyTransfer.getMoneyAmount())));
         return transfers;
     }
     public List<TransferResponse> findAllSends(BankAccount bankAccount){
