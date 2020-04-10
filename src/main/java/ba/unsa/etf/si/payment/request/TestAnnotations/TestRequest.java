@@ -43,7 +43,7 @@ public class TestRequest {
     private Integer testInteger;
 
     @NotNull //radi za "" i null
-    //todo provjeriti ovaj pattern...
+    //todo provjeriti ovaj pattern... -- update: sada radi...
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern="dd.MM.yyyy hh:mm:ss",timezone="Europe/Sarajevo")
     private Date testDate;

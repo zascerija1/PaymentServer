@@ -1,16 +1,7 @@
 package ba.unsa.etf.si.payment.request.filters;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
-
 public class PriceFilterRequest {
-
-    @NotNull
-    @DecimalMin("0.0")
     private Double minPrice;
-
-    @NotNull
-    @DecimalMin("0.0")
     private Double maxPrice;
 
     public PriceFilterRequest() {

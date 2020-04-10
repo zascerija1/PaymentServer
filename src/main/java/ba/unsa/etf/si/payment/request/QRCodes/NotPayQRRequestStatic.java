@@ -1,13 +1,10 @@
 package ba.unsa.etf.si.payment.request.QRCodes;
 
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
 public class NotPayQRRequestStatic implements Serializable {
 
-    @NotNull
     private UUID transactionId;
 
     public NotPayQRRequestStatic() {

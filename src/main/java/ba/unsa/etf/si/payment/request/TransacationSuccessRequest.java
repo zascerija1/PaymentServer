@@ -1,15 +1,11 @@
 package ba.unsa.etf.si.payment.request;
 
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 public class TransacationSuccessRequest implements Serializable {
 
-    @NotBlank
-    private String status;
-
-    @NotBlank
-    private String message;
+private String status;
+private String message;
 
     public TransacationSuccessRequest(String status, String message) {
         this.status = status;

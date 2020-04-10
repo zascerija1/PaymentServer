@@ -4,16 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class DateFilterRequest {
-    @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern="dd.MM.yyyy hh:mm:ss",timezone="Europe/Sarajevo")
     private Date startDate;
 
-    @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern="dd.MM.yyyy hh:mm:ss",timezone="Europe/Sarajevo")
     private Date endDate;
