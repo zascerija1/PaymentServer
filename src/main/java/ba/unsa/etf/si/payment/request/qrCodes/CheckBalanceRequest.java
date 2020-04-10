@@ -1,10 +1,21 @@
 package ba.unsa.etf.si.payment.request.qrCodes;
 
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
 public class CheckBalanceRequest implements Serializable {
+
+
+    @NotNull
+    @Min(0)
     private Long bankAccountId;
+
+    //Jedno moze biti null
+    //Realno moglo se uvijek slati samo totalPrice
+    //Al hajd..
     private UUID transactionId;
     private Double totalPrice;
 

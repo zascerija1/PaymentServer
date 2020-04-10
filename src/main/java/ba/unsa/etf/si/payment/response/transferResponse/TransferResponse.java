@@ -11,14 +11,14 @@ public class TransferResponse {
     private String sourceCardNumber;
     @JsonFormat(timezone="Europe/Sarajevo")
     private Date transferDateAndTime;
-    private Double moneyAmount;
+    private Double amount;
 
-    public TransferResponse(UUID id, String destCardNumber, String sourceCardNumber, Date transferDateAndTime, Double moneyAmount) {
+    public TransferResponse(UUID id, String destCardNumber, String sourceCardNumber, Date transferDateAndTime, Double amount) {
         this.id = id;
         this.destCardNumber = destCardNumber;
         this.sourceCardNumber = sourceCardNumber;
         this.transferDateAndTime = transferDateAndTime;
-        this.moneyAmount = moneyAmount;
+        this.amount = amount;
     }
 
     public UUID getId() {
@@ -53,11 +53,11 @@ public class TransferResponse {
         this.transferDateAndTime = transferDateAndTime;
     }
 
-    public Double getMoneyAmount() {
-        return moneyAmount;
+    public Double getAmount() {
+        return amount;
     }
 
-    public void setMoneyAmount(Double moneyAmount) {
-        this.moneyAmount = moneyAmount;
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
 }

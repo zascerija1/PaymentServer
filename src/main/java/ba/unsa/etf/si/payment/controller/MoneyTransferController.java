@@ -15,6 +15,8 @@ import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
 import ba.unsa.etf.si.payment.service.MoneyTransferService;
 import ba.unsa.etf.si.payment.util.MoneyTransferStatus;
+import ba.unsa.etf.si.payment.util.RequestValidator;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -60,8 +62,10 @@ public class MoneyTransferController {
     }
     @PostMapping("/outerTransfer")
     public MoneyTransferResponse makeOuterTransfer(@Valid @RequestBody MoneyTransferRequest moneyTransferRequest,
-                                                   @CurrentUser UserPrincipal userPrincipal) {
-        //todo validacije
+                                                   @CurrentUser UserPrincipal userPrincipal, BindingResult result) {
+
+        RequestValidator.validateRequest(result);
+
         //Onaj ko salje zahtjev on daje novac, pa je on source
         ApplicationUser user = applicationUserService.find(userPrincipal.getId());
 
@@ -72,8 +76,9 @@ public class MoneyTransferController {
 
     @PostMapping("/innerTransfer")
     public MoneyTransferResponse makeInnerTransfer(@Valid @RequestBody MoneyTransferInRequest moneyTransferInRequest,
-                                                   @CurrentUser UserPrincipal userPrincipal) {
+                                                   @CurrentUser UserPrincipal userPrincipal, BindingResult result) {
 
+        RequestValidator.validateRequest(result);
         //najlakse bilo napraviti request pri cemu je id vlasnika oba racuna isti
         //to je jedina razlika u odnosu na outer
         MoneyTransferRequest moneyTransferRequest = new MoneyTransferRequest(userPrincipal.getId(),moneyTransferInRequest.getSourceBankAccount(),

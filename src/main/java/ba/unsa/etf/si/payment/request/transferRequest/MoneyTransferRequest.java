@@ -1,15 +1,26 @@
 package ba.unsa.etf.si.payment.request.transferRequest;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 public class MoneyTransferRequest {
 
+    @NotNull
+    @Min(0)
     private Long destAccountOwnerId;
 
+    @NotNull
+    @Min(0)
     private Long sourceBankAccount;
 
+    @NotNull
+    @Min(0)
     private Long destinationBankAccount;
 
+    @NotNull
+    @DecimalMin("0.0")
     private Double amount;
 
     @NotBlank
