@@ -88,6 +88,10 @@ public class MoneyTransferController {
     }
 
     private MoneyTransferResponse processTheTransfer(MoneyTransferRequest moneyTransferRequest, Long currentUserId) {
+
+        if(moneyTransferRequest.getDestinationBankAccount().equals(moneyTransferRequest.getSourceBankAccount()))
+            return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Please provide two different bank accounts!",null);
+
         BankAccountUser bankAccountUserSource = bankAccountUserService
                 .findBankAccountUserByIdAndApplicationUserId(moneyTransferRequest.getSourceBankAccount(),
                         currentUserId);

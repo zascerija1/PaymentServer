@@ -9,7 +9,7 @@ public class TransferResponse {
     private UUID id;
     private String destCardNumber;
     private String sourceCardNumber;
-    @JsonFormat(timezone="Europe/Sarajevo")
+    @JsonFormat(pattern="dd.MM.yyyy hh:mm:ss",timezone="Europe/Sarajevo")
     private Date transferDateAndTime;
     private Double amount;
 
