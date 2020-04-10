@@ -1,6 +1,5 @@
 package ba.unsa.etf.si.payment.request.QRCodes;
 
-
 import java.io.Serializable;
 import java.util.UUID;
 
