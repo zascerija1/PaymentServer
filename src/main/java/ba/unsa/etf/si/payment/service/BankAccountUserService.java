@@ -4,7 +4,7 @@ import ba.unsa.etf.si.payment.model.BankAccount;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
 import ba.unsa.etf.si.payment.repository.BankAccountUserRepository;
 import ba.unsa.etf.si.payment.response.BankAccountDataResponse;
-import ba.unsa.etf.si.payment.response.PaymentResponse;
+import ba.unsa.etf.si.payment.response.transactionResponse.PaymentResponse;
 import ba.unsa.etf.si.payment.util.PaymentStatus;
 import org.springframework.stereotype.Service;
 

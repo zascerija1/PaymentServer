@@ -1,8 +1,6 @@
 package ba.unsa.etf.si.payment.repository;
 
-import ba.unsa.etf.si.payment.model.BankAccount;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
-import ba.unsa.etf.si.payment.response.PaymentResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

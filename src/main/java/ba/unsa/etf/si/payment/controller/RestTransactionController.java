@@ -10,6 +10,8 @@ import ba.unsa.etf.si.payment.model.Transaction;
 import ba.unsa.etf.si.payment.request.qrCodes.*;
 import ba.unsa.etf.si.payment.request.TransacationSuccessRequest;
 import ba.unsa.etf.si.payment.response.*;
+import ba.unsa.etf.si.payment.response.transactionResponse.PaymentResponse;
+import ba.unsa.etf.si.payment.response.transactionResponse.TransactionSubmitResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
 import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
@@ -84,7 +86,7 @@ public class RestTransactionController {
 
     @PostMapping("/submit/static")
     public PaymentResponse processThePaymentStatic(@Valid @RequestBody PayQRRequest payQRRequest,
-                                         @CurrentUser UserPrincipal userPrincipal){
+                                                   @CurrentUser UserPrincipal userPrincipal){
 
 
         if(payQRRequest==null || payQRRequest.getTransactionId()==null || payQRRequest.getBankAccountId()==null){
@@ -284,11 +286,5 @@ public class RestTransactionController {
         }
         transactionService.delete(transaction.getId());
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
-    }
-
-    @GetMapping("/info")
-    //todo ovo je proba
-    public Post getPaymentInfo2(/*@RequestBody StaticQRRequest staticQRRequest,*/ @CurrentUser UserPrincipal userPrincipal){
-        return restService.getPostWithUrlParameters();
     }
 }

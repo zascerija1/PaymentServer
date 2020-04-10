@@ -1,5 +1,7 @@
 package ba.unsa.etf.si.payment.response.transferResponse;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 import java.util.UUID;
 
@@ -7,6 +9,7 @@ public class TransferResponse {
     private UUID id;
     private String destCardNumber;
     private String sourceCardNumber;
+    @JsonFormat(timezone="Europe/Sarajevo")
     private Date transferDateAndTime;
     private Double moneyAmount;
 

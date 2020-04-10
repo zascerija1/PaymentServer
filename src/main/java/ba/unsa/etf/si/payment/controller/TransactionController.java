@@ -7,7 +7,7 @@ import ba.unsa.etf.si.payment.model.BankAccountUser;
 import ba.unsa.etf.si.payment.request.filters.DateFilterRequest;
 import ba.unsa.etf.si.payment.request.filters.PriceFilterRequest;
 import ba.unsa.etf.si.payment.response.ApiResponse;
-import ba.unsa.etf.si.payment.response.TransactionDataResponse;
+import ba.unsa.etf.si.payment.response.transactionResponse.TransactionDataResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
 import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.BankAccountService;

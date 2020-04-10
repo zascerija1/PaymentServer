@@ -4,7 +4,6 @@ package ba.unsa.etf.si.payment.service;
 import ba.unsa.etf.si.payment.request.qrCodes.StaticQRRequest;
 import ba.unsa.etf.si.payment.request.TransacationSuccessRequest;
 import ba.unsa.etf.si.payment.response.MainInfoResponse;
-import ba.unsa.etf.si.payment.response.Post;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -34,21 +33,13 @@ public class RestService {
         HttpEntity<StaticQRRequest> request = new HttpEntity<>(staticQRRequest, headers);
          return restTemplate.postForEntity(url, request, MainInfoResponse.class);
     }
-    public Post getPostWithUrlParameters() {
-        String url = "https://jsonplaceholder.typicode.com/posts/{id}";
-        return this.restTemplate.getForObject(url, Post.class, 3);
-    }
 
     public void updateTransactionStatus(TransacationSuccessRequest transacationSuccessRequest,
                                         String receiptId){
         String url = "https://main-server-si.herokuapp.com/api/receipts/"+receiptId;
-        // create headers
         HttpHeaders headers = new HttpHeaders();
-        // set `content-type` header
         headers.setContentType(MediaType.APPLICATION_JSON);
-        // set `accept` header
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        // build the request
         HttpEntity<TransacationSuccessRequest> entity = new HttpEntity<>(transacationSuccessRequest, headers);
         this.restTemplate.put(url, entity);
     }

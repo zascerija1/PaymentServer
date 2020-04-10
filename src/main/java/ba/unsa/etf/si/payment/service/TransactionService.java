@@ -1,12 +1,10 @@
 package ba.unsa.etf.si.payment.service;
 
 import ba.unsa.etf.si.payment.model.BankAccount;
-import ba.unsa.etf.si.payment.model.BankAccountUser;
 import ba.unsa.etf.si.payment.model.Merchant;
 import ba.unsa.etf.si.payment.model.Transaction;
-import ba.unsa.etf.si.payment.repository.BankAccountUserRepository;
 import ba.unsa.etf.si.payment.repository.TransactionRepository;
-import ba.unsa.etf.si.payment.response.TransactionDataResponse;
+import ba.unsa.etf.si.payment.response.transactionResponse.TransactionDataResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
