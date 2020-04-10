@@ -1,24 +1,25 @@
 package ba.unsa.etf.si.payment.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Entity
 @Table(name = "money_transfers")
 public class MoneyTransfer extends AuditModel {
     @Id
-    @GeneratedValue(generator = "money_transfer_generator")
-    @SequenceGenerator(
-            name = "money_transfer_generator",
-            sequenceName = "money_transfer_sequence",
-            initialValue = 100
+    @GeneratedValue(generator = "UUID2")
+    @GenericGenerator(
+            name = "UUID2",
+            strategy = "org.hibernate.id.UUIDGenerator"
     )
-    private Long id;
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "receives_id", nullable = false)
@@ -33,13 +34,16 @@ public class MoneyTransfer extends AuditModel {
     @Column(name = "money_amount", nullable = false)
     private Double moneyAmount;
 
-    public Long getId() {
-        return id;
+    public MoneyTransfer() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public MoneyTransfer(BankAccount sends, BankAccount receives, Double moneyAmount) {
+        this.sends=sends;
+        this.receives=receives;
+        this.moneyAmount=moneyAmount;
     }
+
+
 
     public BankAccount getReceives() {
         return receives;
@@ -63,6 +67,14 @@ public class MoneyTransfer extends AuditModel {
 
     public void setMoneyAmount(Double moneyAmount) {
         this.moneyAmount = moneyAmount;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }
 

@@ -6,8 +6,8 @@ import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
 import ba.unsa.etf.si.payment.request.filters.DateFilterRequest;
 import ba.unsa.etf.si.payment.request.filters.PriceFilterRequest;
-import ba.unsa.etf.si.payment.response.TransactionDataResponse;
-import ba.unsa.etf.si.payment.response.DeleteTransactionResponse;
+import ba.unsa.etf.si.payment.response.ApiResponse;
+import ba.unsa.etf.si.payment.response.transactionResponse.TransactionDataResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
 import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.BankAccountService;
@@ -97,8 +97,8 @@ public class TransactionController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{transactionId}")
-    public DeleteTransactionResponse deleteTransaction(@PathVariable UUID transactionId){
+    public ApiResponse deleteTransaction(@PathVariable UUID transactionId){
         transactionService.delete(transactionId);
-        return new DeleteTransactionResponse(true, "Transaction deleted successfully.");
+        return new ApiResponse(true, "Transaction deleted successfully.");
     }
 }

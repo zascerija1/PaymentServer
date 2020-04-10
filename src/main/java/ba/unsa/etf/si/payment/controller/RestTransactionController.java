@@ -7,9 +7,11 @@ import ba.unsa.etf.si.payment.model.ApplicationUser;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
 import ba.unsa.etf.si.payment.model.Merchant;
 import ba.unsa.etf.si.payment.model.Transaction;
-import ba.unsa.etf.si.payment.request.QRCodes.*;
+import ba.unsa.etf.si.payment.request.qrCodes.*;
 import ba.unsa.etf.si.payment.request.TransacationSuccessRequest;
 import ba.unsa.etf.si.payment.response.*;
+import ba.unsa.etf.si.payment.response.transactionResponse.PaymentResponse;
+import ba.unsa.etf.si.payment.response.transactionResponse.TransactionSubmitResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
 import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
@@ -17,7 +19,9 @@ import ba.unsa.etf.si.payment.service.MerchantService;
 import ba.unsa.etf.si.payment.service.RestService;
 import ba.unsa.etf.si.payment.service.TransactionService;
 import ba.unsa.etf.si.payment.util.PaymentStatus;
+import ba.unsa.etf.si.payment.util.RequestValidator;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpStatusCodeException;
 
@@ -42,18 +46,11 @@ public class RestTransactionController {
 
 
     @PostMapping("/receipt/info")
-    //todo ovo je proba
     public TransactionSubmitResponse getPaymentInfo(@Valid @RequestBody StaticQRRequest staticQRRequest,
-                                                    @CurrentUser UserPrincipal userPrincipal){
+                                                    @CurrentUser UserPrincipal userPrincipal, BindingResult bindingResult){
 
-        //todo dodai neku validator metodu neke mozda staticke klase da validira staticQRrequest jer se ne moza na long
-        //stavljati notBlank
-        //postoji varijanta da se naprave custom anotacije
 
-        if(staticQRRequest==null || staticQRRequest.getCashRegisterId()==null || staticQRRequest.getOfficeId()==null){
-            throw new BadRequestException("Bad request!");
-        }
-
+        RequestValidator.validateRequest(bindingResult);
         ApplicationUser applicationUser = new ApplicationUser();
         applicationUser.setId(userPrincipal.getId());
         List<Merchant> merchantList=merchantService.find(staticQRRequest.getBusinessName());
@@ -84,14 +81,10 @@ public class RestTransactionController {
 
     @PostMapping("/submit/static")
     public PaymentResponse processThePaymentStatic(@Valid @RequestBody PayQRRequest payQRRequest,
-                                         @CurrentUser UserPrincipal userPrincipal){
+                                                   @CurrentUser UserPrincipal userPrincipal, BindingResult bindingResult){
 
 
-        if(payQRRequest==null || payQRRequest.getTransactionId()==null || payQRRequest.getBankAccountId()==null){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Parameters" +
-                    " missing! Try again");
-        }
-
+        RequestValidator.validateRequest(bindingResult);
         Transaction transaction = transactionService.findByIdAndApplicationUser_Id(payQRRequest.getTransactionId(), userPrincipal.getId());
         if(transaction==null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transactionId! Try again");
@@ -101,7 +94,6 @@ public class RestTransactionController {
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
 
-        //todo provjeriti ovo!!!!!!!!!!!!!!!!
 
        PaymentResponse paymentResponse = bankAccountUserService.getPaymentResult(payQRRequest.getBankAccountId(),
                 userPrincipal.getId(), transaction.getTotalPrice());
@@ -127,14 +119,9 @@ public class RestTransactionController {
 
     @PostMapping("/submit/dynamic")
     public PaymentResponse processThePaymentDynamic(@Valid @RequestBody DynamicQRRequest dynamicQRRequest,
-                                                    @CurrentUser UserPrincipal userPrincipal){
+                                                    @CurrentUser UserPrincipal userPrincipal, BindingResult bindingResult){
 
-
-        if(dynamicQRRequest==null || dynamicQRRequest.getBankAccountId()==null
-                || dynamicQRRequest.getTotalPrice()==null){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Parameters" +
-                    " missing! Try again");
-        }
+        RequestValidator.validateRequest(bindingResult);
         List<Merchant> merchantList=merchantService.find(dynamicQRRequest.getBusinessName());
         if(merchantList.isEmpty()){
             restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
@@ -167,15 +154,11 @@ public class RestTransactionController {
         return paymentResponse;
     }
 
-
-    //Uklonila valid jer ne treba proceed parametar
     @PostMapping("/checkbalance")
-    public PaymentResponse checkTheBalanceForPayment(@RequestBody CheckBalanceRequest checkBalanceRequest,
-                                            @CurrentUser UserPrincipal userPrincipal){
-        if(checkBalanceRequest==null ||  checkBalanceRequest.getBankAccountId()==null){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Bank account" +
-                    " missing! Try again");
-        }
+    public PaymentResponse checkTheBalanceForPayment(@Valid @RequestBody CheckBalanceRequest checkBalanceRequest,
+                                            @CurrentUser UserPrincipal userPrincipal, BindingResult bindingResult){
+
+        RequestValidator.validateRequest(bindingResult);
         if(checkBalanceRequest.getTransactionId()!=null) {
             Transaction transaction = transactionService.findByIdAndApplicationUser_Id(checkBalanceRequest.getTransactionId(), userPrincipal.getId());
             if (transaction == null) {
@@ -197,11 +180,10 @@ public class RestTransactionController {
 
     //Ipak cemo sa odvojenim rutama
     @PostMapping("/static/cancel")
-    public PaymentResponse cancelThePaymentStatic(@RequestBody NotPayQRRequestStatic notPayQRRequestStatic,
-                                             @CurrentUser UserPrincipal userPrincipal){
-        if(notPayQRRequestStatic ==null || notPayQRRequestStatic.getTransactionId()==null){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction id missing! Try again");
-        }
+    public PaymentResponse cancelThePaymentStatic(@Valid @RequestBody NotPayQRRequestStatic notPayQRRequestStatic,
+                                                  @CurrentUser UserPrincipal userPrincipal, BindingResult result){
+
+        RequestValidator.validateRequest(result);
         Transaction transaction = transactionService.findByIdAndApplicationUser_Id(notPayQRRequestStatic.getTransactionId(), userPrincipal.getId());
         if(transaction==null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
@@ -222,8 +204,7 @@ public class RestTransactionController {
     }
 
     @PostMapping("/dynamic/cancel")
-    public PaymentResponse cancelThePaymentDynamic(@Valid @RequestBody NotPayQRRequestDynamic notPayQRRequestDynamic,
-                                                   @CurrentUser UserPrincipal userPrincipal){
+    public PaymentResponse cancelThePaymentDynamic(@Valid @RequestBody NotPayQRRequestDynamic notPayQRRequestDynamic){
 
         try {
             restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
@@ -234,19 +215,11 @@ public class RestTransactionController {
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
     }
 
-    //todo Proba
-    //Ovdje mozete probati proces placanja za staticki kod
-    //S tim da u bazi mora biti neka transakcija prije toga
-    //Bez ubacenonog bank accounta
-    //I processed false jer kao nije obrađena
     @PostMapping("/proba")
     public PaymentResponse testThePayment(@Valid @RequestBody PayQRRequest payQRRequest,
-                                         @CurrentUser UserPrincipal userPrincipal){
+                                         @CurrentUser UserPrincipal userPrincipal, BindingResult bindingResult){
 
-        if(payQRRequest==null || payQRRequest.getTransactionId()==null || payQRRequest.getBankAccountId()==null){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction or bank account id" +
-                    " missing! Try again");
-        }
+        RequestValidator.validateRequest(bindingResult);
 
         Transaction transaction = transactionService.findByIdAndApplicationUser_Id(payQRRequest.getTransactionId(), userPrincipal.getId());
         if(transaction==null){
@@ -270,11 +243,11 @@ public class RestTransactionController {
     }
 
     @PostMapping("/static/cancel/proba")
-    public PaymentResponse cancelThePaymentStaticProba(@RequestBody NotPayQRRequestStatic notPayQRRequestStatic,
-                                                  @CurrentUser UserPrincipal userPrincipal){
-        if(notPayQRRequestStatic ==null || notPayQRRequestStatic.getTransactionId()==null){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction id missing! Try again");
-        }
+    public PaymentResponse cancelThePaymentStaticProba(@Valid @RequestBody NotPayQRRequestStatic notPayQRRequestStatic,
+                                                  @CurrentUser UserPrincipal userPrincipal, BindingResult bindingResult){
+
+        RequestValidator.validateRequest(bindingResult);
+
         Transaction transaction = transactionService.findByIdAndApplicationUser_Id(notPayQRRequestStatic.getTransactionId(), userPrincipal.getId());
         if(transaction==null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
@@ -284,11 +257,5 @@ public class RestTransactionController {
         }
         transactionService.delete(transaction.getId());
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
-    }
-
-    @GetMapping("/info")
-    //todo ovo je proba
-    public Post getPaymentInfo2(/*@RequestBody StaticQRRequest staticQRRequest,*/ @CurrentUser UserPrincipal userPrincipal){
-        return restService.getPostWithUrlParameters();
     }
 }

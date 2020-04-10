@@ -1,7 +1,6 @@
 package ba.unsa.etf.si.payment.controller;
 
 import ba.unsa.etf.si.payment.exception.AppException;
-import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
 import ba.unsa.etf.si.payment.model.ApplicationUser;
 import ba.unsa.etf.si.payment.model.Question;
 import ba.unsa.etf.si.payment.model.auth.Role;
@@ -24,11 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Collections;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/auth")

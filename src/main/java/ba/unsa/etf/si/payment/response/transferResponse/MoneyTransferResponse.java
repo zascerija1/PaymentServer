@@ -1,4 +1,4 @@
-package ba.unsa.etf.si.payment.response;
+package ba.unsa.etf.si.payment.response.transferResponse;
 
 import ba.unsa.etf.si.payment.util.MoneyTransferStatus;
 
