@@ -168,6 +168,8 @@
 *by transactions created time (last 24h), 
 *by transactions created time (last month),
 *by users service,
+*within range of dates (including time).
+*within range of prices.
 *by merchant name.
 
 ### Task
@@ -183,7 +185,7 @@
 
 # Feature
 
-> Was payment successful?
+> Providing status of payments
 
 ## Item
 
@@ -193,7 +195,7 @@
 
 * Create a new branch and switch to it
 * Create a response class and request class if needed
-* Create a controller for transactions and all the rutes 
+* Create a controller for transactions and all the routes 
 * Receive request from Pay Mobile App for paying
 * Create a new transaction and get money from users bank account if they have enough money
 * Send response to Main Server and Pay Mobile App
@@ -214,7 +216,7 @@
 
 * Create a new branch and switch to it
 * Create a response class and request class if needed
-* Create a controller for paying/transactions and all the rutes 
+* Create a controller for paying/transactions and all the routes 
 * Receive request from Pay Mobile App for paying, with all the information they get from scanning the code
 * Create a new transaction and get money from users bank account if they have enough money
 * Send response to Main Server and Pay Mobile App
@@ -235,12 +237,49 @@
 
 * Create a new branch and switch to it
 * Create a response class and request class if needed
-* Create a controller for paying/transactions and all the rutes 
+* Create a controller for paying/transactions and all the routes 
 * Receive request from Pay Mobile App for paying, with all the information they get from scanning the code (cash register ID and businessName)
 * Send a request to Main Server to get all the other information we need to continue payment
 * Send response to Pay App to see if they want to continue
 * Create a new transaction and get money from users bank account if they have enough money
 * Send response (about payment status) to Main Server and Pay Mobile App 
+* Commit and push on your branch
+* Create a pull request
+
+# Feature
+
+> Transferring funds with QR codes
+
+## Item
+
+> Users of Pay Mobile App should be able to transfer funds between accounts (including other users)
+
+### Task
+
+* Create a new branch and switch to it
+* Create a response class and request class if needed
+* Create a controller for transfers and all the routes 
+* Receive request from Pay Mobile App for transfer, with all the information they get from scanning the code (required to make transfer  and to validate it)
+* Document transfer in money transfer history table
+* Send response (about transfer status) to Pay Mobile App 
+* Commit and push on your branch
+* Create a pull request
+
+# Feature
+
+> Overview of all funds transfers
+
+## Item
+
+> Users of Pay Mobile App should be able to track their funds transfer all the time with all the details
+
+### Task
+
+* Create a new branch and switch to it
+* Create a response class and request class if needed
+* Create routes for transfer history of certain bank account
+* Validate request (if given account belongs to current user)
+* Send response about transfers 
 * Commit and push on your branch
 * Create a pull request
 

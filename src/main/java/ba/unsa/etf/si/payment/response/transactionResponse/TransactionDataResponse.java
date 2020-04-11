@@ -1,4 +1,4 @@
-package ba.unsa.etf.si.payment.response;
+package ba.unsa.etf.si.payment.response.transactionResponse;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

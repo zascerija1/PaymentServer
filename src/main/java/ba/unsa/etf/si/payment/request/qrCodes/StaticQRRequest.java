@@ -1,15 +1,18 @@
-package ba.unsa.etf.si.payment.request.QRCodes;
+package ba.unsa.etf.si.payment.request.qrCodes;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 public class StaticQRRequest {
 
-    //todo adjust to cash register server...
 
-    //@NotBlank
+    @NotNull
+    @Min(0)
     private Long cashRegisterId;
 
-    //@NotBlank
+    @NotNull
+    @Min(0)
     private Long officeId;
 
     @NotBlank

@@ -1,4 +1,4 @@
-package ba.unsa.etf.si.payment.response;
+package ba.unsa.etf.si.payment.response.transactionResponse;
 
 import ba.unsa.etf.si.payment.util.PaymentStatus;
 import org.springframework.http.HttpStatus;

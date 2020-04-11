@@ -5,7 +5,6 @@ import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
 import ba.unsa.etf.si.payment.model.Answer;
 import ba.unsa.etf.si.payment.service.AnswerService;
 import ba.unsa.etf.si.payment.service.QuestionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;

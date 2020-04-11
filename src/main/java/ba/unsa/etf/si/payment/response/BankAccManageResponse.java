@@ -1,10 +1,10 @@
 package ba.unsa.etf.si.payment.response;
 
-public class AccountResponse {
-    Boolean success;
-    String text;
+public class BankAccManageResponse {
+    private Boolean success;
+    private String text;
 
-    public AccountResponse(Boolean success, String text) {
+    public BankAccManageResponse(Boolean success, String text) {
         this.success = success;
         this.text = text;
     }
