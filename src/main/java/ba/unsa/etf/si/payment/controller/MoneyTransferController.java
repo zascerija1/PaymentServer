@@ -16,6 +16,7 @@ import ba.unsa.etf.si.payment.service.BankAccountUserService;
 import ba.unsa.etf.si.payment.service.MoneyTransferService;
 import ba.unsa.etf.si.payment.util.MoneyTransferStatus;
 import ba.unsa.etf.si.payment.util.RequestValidator;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,12 +31,14 @@ public class MoneyTransferController {
     private final BankAccountUserService bankAccountUserService;
     private final ApplicationUserService applicationUserService;
     private final BankAccountService bankAccountService;
+    private final PasswordEncoder passwordEncoder;
 
-    public MoneyTransferController(MoneyTransferService moneyTransferService, BankAccountUserService bankAccountUserService, ApplicationUserService applicationUserService, BankAccountService bankAccountService) {
+    public MoneyTransferController(MoneyTransferService moneyTransferService, BankAccountUserService bankAccountUserService, ApplicationUserService applicationUserService, BankAccountService bankAccountService, PasswordEncoder passwordEncoder) {
         this.moneyTransferService = moneyTransferService;
         this.bankAccountUserService = bankAccountUserService;
         this.applicationUserService = applicationUserService;
         this.bankAccountService = bankAccountService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/allReceives/{bankAccountUserId}")
@@ -69,7 +72,8 @@ public class MoneyTransferController {
         //Onaj ko salje zahtjev on daje novac, pa je on source
         ApplicationUser user = applicationUserService.find(userPrincipal.getId());
 
-        if (!moneyTransferRequest.getAnswer().equals(user.getAnswer().getText()))
+         if(!passwordEncoder.matches(moneyTransferRequest.getAnswer(), user.getAnswer().getText()))
+       // if (!moneyTransferRequest.getAnswer().equals(user.getAnswer().getText()))
             return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Unauthorized request",null);
         return processTheTransfer(moneyTransferRequest, userPrincipal.getId());
     }

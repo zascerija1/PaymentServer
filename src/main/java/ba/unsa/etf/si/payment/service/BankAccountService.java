@@ -19,6 +19,10 @@ public class BankAccountService {
         return bankAccountRepository.findByCvcAndCardNumber(cvc, cardNumber);
     }
 
+    public List<BankAccount> findByCardNumber(String cardNumber) {
+        return bankAccountRepository.findByCardNumber(cardNumber);
+    }
+
     public BankAccount save(BankAccount bankAccount) {
         return  bankAccountRepository.save(bankAccount);
     }
