@@ -92,21 +92,8 @@ public class RestTransactionController {
         if(transaction.getBankAccount()!=null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
-        Integer attempts=transactionLogService.getNumberOfAttempts(transaction.getId());
-
-        //ovdje bi se main sada mozda mogao obavijesiti
-
-        if(attempts>=5){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! You have reached" +
-                    " the limit of 5 attempts!");
-        }
-        Date now=new Date();
-        long diffInMillies = Math.abs(now.getTime() - transaction.getCreatedAt().getTime());
-        long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        if(diff>4){
-            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! Transaction closes" +
-                    " after 5 minutes!");
-        }
+        PaymentResponse paymentResponseReq=processTheRequest(transaction);
+        if(paymentResponseReq!=null) return paymentResponseReq;
 
         TransactionLog transactionLog=new TransactionLog(transaction, false);
 
@@ -126,6 +113,8 @@ public class RestTransactionController {
             transaction.setBankAccount(bankAccountUser.getBankAccount());
             transaction.setProcessed(true);
             transactionLog.setSuccess(true);
+            // TODO: 4/28/2020 vratiti ovo
+            /*
             try {
                 restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.PAID.toString(),
                         paymentResponse.getMessage()), transaction.getReceiptId());
@@ -133,6 +122,7 @@ public class RestTransactionController {
                 throw new ResourceNotFoundException("Main server responded with error!");
 
             }
+             */
             transactionService.save(transaction);
         }
         transactionLogService.save(transactionLog);
@@ -162,19 +152,8 @@ public class RestTransactionController {
                 transaction=transactionService.save(transaction);
         }
         else{
-            //todo REFAKTORISATIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
-            Integer attempts=transactionLogService.getNumberOfAttempts(transaction.getId());
-            if(attempts>=5){
-                return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! You have reached" +
-                        " the limit of 5 attempts!");
-            }
-            Date now=new Date();
-            long diffInMillies = Math.abs(now.getTime() - transaction.getCreatedAt().getTime());
-            long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
-            if(diff>4){
-                return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! Transaction closes" +
-                        " after 5 minutes!");
-            }
+            PaymentResponse paymentResponse=processTheRequest(transaction);
+           if(paymentResponse!=null) return paymentResponse;
         }
         TransactionLog transactionLog=new TransactionLog(transaction, false);
         BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(dynamicQRRequest.getBankAccountId());
@@ -183,7 +162,6 @@ public class RestTransactionController {
             return new PaymentResponse(PaymentStatus.CANCELED, "Nonexistent bank account!");
         }
         transactionLog.setBankAccount(bankAccountUser.getBankAccount());
-
         PaymentResponse paymentResponse = bankAccountUserService.getPaymentResult(dynamicQRRequest.getBankAccountId(),
                 userPrincipal.getId(), dynamicQRRequest.getTotalPrice());
 
@@ -195,6 +173,8 @@ public class RestTransactionController {
                     //dynamicQRRequest.getService(), dynamicQRRequest.getReceiptId(), true);
             transaction.setProcessed(true);
             transaction.setBankAccount(bankAccountUser.getBankAccount());
+            // TODO: 4/28/2020 vratiti ovo
+            /*
             try {
                 restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.PAID.toString(),
                         paymentResponse.getMessage()), dynamicQRRequest.getReceiptId());
@@ -202,6 +182,7 @@ public class RestTransactionController {
                 throw new ResourceNotFoundException("Main server error!");
             }
 
+             */
             transactionService.save(transaction);
         }
         transactionLogService.save(transactionLog);
@@ -246,12 +227,17 @@ public class RestTransactionController {
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
 
+        if(processTheRequest(transaction)!=null) return new PaymentResponse(PaymentStatus.CANCELED, "Transaction closed!");
+
+        /*
         try {
+            //todo vratiti ovo
             restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
                     "Customer decided not to proceed with payment"), transaction.getReceiptId());
         } catch (HttpStatusCodeException ex) {
             throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
         }
+         */
 
         //transactionService.delete(transaction.getId());
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
@@ -279,13 +265,21 @@ public class RestTransactionController {
             transaction=transactionService.save(transaction);
             transactionLogService.save(new TransactionLog(transaction,false));
         }
+        else if(transaction.getProcessed()){
+            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
+        }
 
+        if(processTheRequest(transaction)!=null) return new PaymentResponse(PaymentStatus.CANCELED, "Transaction closed!");
+
+        // TODO: 4/28/2020 vratiti ovo
+        /*
         try {
             restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
                     "Customer decided not to proceed with payment"), notPayQRRequestDynamic.getReceiptId());
         } catch (HttpStatusCodeException ex) {
             throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
         }
+         */
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
     }
 
@@ -345,5 +339,32 @@ public class RestTransactionController {
         }
         transactionService.delete(transaction.getId());
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
+    }
+
+    private PaymentResponse processTheRequest(Transaction transaction){
+        Integer attempts=transactionLogService.getNumberOfAttempts(transaction.getId());
+        if(attempts>4){
+           // updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Transaction closed due to many faulty attempts!"), transaction.getReceiptId());
+            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! You have reached" +
+                    " the limit of 5 attempts!");
+        }
+        Date now=new Date();
+        long diffInMillies = Math.abs(now.getTime() - transaction.getCreatedAt().getTime());
+        long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        if(diff>4){
+           // updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Transaction expired"), transaction.getReceiptId());
+            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! Transaction closes" +
+                    " after 5 minutes!");
+        }
+        return null;
+    }
+
+
+    private void updateTheMainServer(TransacationSuccessRequest transacationSuccessRequest, String receiptId){
+        try {
+            restService.updateTransactionStatus(transacationSuccessRequest,receiptId);
+        } catch (HttpStatusCodeException ex) {
+            throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
+        }
     }
 }
