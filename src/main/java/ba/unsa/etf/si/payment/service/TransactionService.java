@@ -101,6 +101,10 @@ public class TransactionService {
                             transaction.getService());
                 })
                 .collect(Collectors.toList());
+    }
 
+        public Transaction findByReceiptId(String receiptId){
+        Optional<Transaction> optTransaction= transactionRepository.findByReceiptId(receiptId);
+        return optTransaction.orElse(null);
     }
 }

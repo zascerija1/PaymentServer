@@ -19,4 +19,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findAllByApplicationUser_IdAndMerchant_MerchantNameAndProcessed(Long id, String merchantName, Boolean processed);
     List<Transaction> findAllByApplicationUser_IdAndTotalPriceBetweenAndProcessed(Long id, Double minPrice, Double maxPrice, Boolean processed);
     void deleteById(UUID id);
+    Optional<Transaction> findByReceiptId(String receiptId);
 }

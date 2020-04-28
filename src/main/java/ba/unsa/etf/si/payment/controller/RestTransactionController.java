@@ -1,12 +1,8 @@
 package ba.unsa.etf.si.payment.controller;
 
 
-import ba.unsa.etf.si.payment.exception.BadRequestException;
 import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
-import ba.unsa.etf.si.payment.model.ApplicationUser;
-import ba.unsa.etf.si.payment.model.BankAccountUser;
-import ba.unsa.etf.si.payment.model.Merchant;
-import ba.unsa.etf.si.payment.model.Transaction;
+import ba.unsa.etf.si.payment.model.*;
 import ba.unsa.etf.si.payment.request.qrCodes.*;
 import ba.unsa.etf.si.payment.request.TransacationSuccessRequest;
 import ba.unsa.etf.si.payment.response.*;
@@ -14,10 +10,7 @@ import ba.unsa.etf.si.payment.response.transactionResponse.PaymentResponse;
 import ba.unsa.etf.si.payment.response.transactionResponse.TransactionSubmitResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
 import ba.unsa.etf.si.payment.security.UserPrincipal;
-import ba.unsa.etf.si.payment.service.BankAccountUserService;
-import ba.unsa.etf.si.payment.service.MerchantService;
-import ba.unsa.etf.si.payment.service.RestService;
-import ba.unsa.etf.si.payment.service.TransactionService;
+import ba.unsa.etf.si.payment.service.*;
 import ba.unsa.etf.si.payment.util.PaymentStatus;
 import ba.unsa.etf.si.payment.util.RequestValidator;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -35,12 +30,16 @@ public class RestTransactionController {
     private final RestService restService;
     private final MerchantService merchantService;
     private final TransactionService transactionService;
+    private final TransactionLogService transactionLogService;
+    private final BankAccountService bankAccountService;
     private final BankAccountUserService bankAccountUserService;
 
-    public RestTransactionController(RestService restService, MerchantService merchantService, TransactionService transactionService, BankAccountUserService bankAccountUserService) {
+    public RestTransactionController(RestService restService, MerchantService merchantService, TransactionService transactionService, TransactionLogService transactionLogService, BankAccountService bankAccountService, BankAccountUserService bankAccountUserService) {
         this.restService = restService;
         this.merchantService = merchantService;
         this.transactionService = transactionService;
+        this.transactionLogService = transactionLogService;
+        this.bankAccountService = bankAccountService;
         this.bankAccountUserService = bankAccountUserService;
     }
 
@@ -93,27 +92,50 @@ public class RestTransactionController {
         if(transaction.getBankAccount()!=null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
+        Integer attempts=transactionLogService.getNumberOfAttempts(transaction.getId());
 
+        //ovdje bi se main sada mozda mogao obavijesiti
 
-       PaymentResponse paymentResponse = bankAccountUserService.getPaymentResult(payQRRequest.getBankAccountId(),
+        if(attempts>=5){
+            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! You have reached" +
+                    " the limit of 5 attempts!");
+        }
+        Date now=new Date();
+        long diffInMillies = Math.abs(now.getTime() - transaction.getCreatedAt().getTime());
+        long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        if(diff>4){
+            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! Transaction closes" +
+                    " after 5 minutes!");
+        }
+
+        TransactionLog transactionLog=new TransactionLog(transaction, false);
+
+        BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(payQRRequest.getBankAccountId());
+        if(bankAccountUser==null){
+            transactionLogService.save(transactionLog);
+            return new PaymentResponse(PaymentStatus.CANCELED, "Nonexistent bank account!");
+        }
+        transactionLog.setBankAccount(bankAccountUser.getBankAccount());
+        PaymentResponse paymentResponse = bankAccountUserService.getPaymentResult(payQRRequest.getBankAccountId(),
                 userPrincipal.getId(), transaction.getTotalPrice());
 
         //Obavjestavamo main samo ako je uplaceno
 
         if(paymentResponse.getPaymentStatus().equals(PaymentStatus.PAID)) {
-            BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(payQRRequest.getBankAccountId());
+            //BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(payQRRequest.getBankAccountId());
             transaction.setBankAccount(bankAccountUser.getBankAccount());
             transaction.setProcessed(true);
+            transactionLog.setSuccess(true);
             try {
                 restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.PAID.toString(),
                         paymentResponse.getMessage()), transaction.getReceiptId());
             } catch (HttpStatusCodeException ex) {
-                throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
+                throw new ResourceNotFoundException("Main server responded with error!");
 
             }
-
             transactionService.save(transaction);
         }
+        transactionLogService.save(transactionLog);
         return paymentResponse;
     }
 
@@ -129,28 +151,60 @@ public class RestTransactionController {
             throw new ResourceNotFoundException("Business not registered for this service");
         }
 
+        ApplicationUser applicationUser=new ApplicationUser();
+        applicationUser.setId(userPrincipal.getId());
+        Merchant merchant=merchantList.get(0);
+
+        Transaction transaction=transactionService.findByReceiptId(dynamicQRRequest.getReceiptId());
+        if(transaction==null){
+                transaction=new Transaction(merchant, applicationUser, dynamicQRRequest.getTotalPrice(),
+                    dynamicQRRequest.getService(), dynamicQRRequest.getReceiptId(), false);
+                transaction=transactionService.save(transaction);
+        }
+        else{
+            //todo REFAKTORISATIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+            Integer attempts=transactionLogService.getNumberOfAttempts(transaction.getId());
+            if(attempts>=5){
+                return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! You have reached" +
+                        " the limit of 5 attempts!");
+            }
+            Date now=new Date();
+            long diffInMillies = Math.abs(now.getTime() - transaction.getCreatedAt().getTime());
+            long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
+            if(diff>4){
+                return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! Transaction closes" +
+                        " after 5 minutes!");
+            }
+        }
+        TransactionLog transactionLog=new TransactionLog(transaction, false);
+        BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(dynamicQRRequest.getBankAccountId());
+        if(bankAccountUser==null){
+            transactionLogService.save(transactionLog);
+            return new PaymentResponse(PaymentStatus.CANCELED, "Nonexistent bank account!");
+        }
+        transactionLog.setBankAccount(bankAccountUser.getBankAccount());
+
         PaymentResponse paymentResponse = bankAccountUserService.getPaymentResult(dynamicQRRequest.getBankAccountId(),
                 userPrincipal.getId(), dynamicQRRequest.getTotalPrice());
 
         //Obavjestavamo main samo ako je uspjesno placeno
-
         if(paymentResponse.getPaymentStatus().equals(PaymentStatus.PAID)){
-            BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(dynamicQRRequest.getBankAccountId());
-            ApplicationUser applicationUser=new ApplicationUser();
-            applicationUser.setId(userPrincipal.getId());
-            Merchant merchant=merchantList.get(0);
-            Transaction transaction=new Transaction(merchant, applicationUser, dynamicQRRequest.getTotalPrice(),
-                    dynamicQRRequest.getService(), dynamicQRRequest.getReceiptId(), true);
+            //BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(dynamicQRRequest.getBankAccountId());
+
+           // Transaction transaction=new Transaction(merchant, applicationUser, dynamicQRRequest.getTotalPrice(),
+                    //dynamicQRRequest.getService(), dynamicQRRequest.getReceiptId(), true);
+            transaction.setProcessed(true);
             transaction.setBankAccount(bankAccountUser.getBankAccount());
             try {
                 restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.PAID.toString(),
                         paymentResponse.getMessage()), dynamicQRRequest.getReceiptId());
             } catch (HttpStatusCodeException ex) {
-                throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
+                throw new ResourceNotFoundException("Main server error!");
             }
 
             transactionService.save(transaction);
         }
+        transactionLogService.save(transactionLog);
         return paymentResponse;
     }
 
@@ -199,12 +253,46 @@ public class RestTransactionController {
             throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
         }
 
-        transactionService.delete(transaction.getId());
+        //transactionService.delete(transaction.getId());
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
     }
 
+    @PostMapping("/dynamic/cancel2")
+    public PaymentResponse cancelThePaymentDynamic2(@Valid @RequestBody NotPayQRRequestDynamic notPayQRRequestDynamic,
+                                                    @CurrentUser UserPrincipal userPrincipal,
+                                                    BindingResult bindingResult){
+        RequestValidator.validateRequest(bindingResult);
+        Transaction transaction=transactionService.findByReceiptId(notPayQRRequestDynamic.getReceiptId());
+        List<Merchant> merchantList=merchantService.find(notPayQRRequestDynamic.getBusinessName());
+        if(merchantList.isEmpty()){
+            restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
+                    "Business not registered for this service"), notPayQRRequestDynamic.getReceiptId());
+            throw new ResourceNotFoundException("Business not registered for this service");
+        }
+
+        ApplicationUser applicationUser=new ApplicationUser();
+        applicationUser.setId(userPrincipal.getId());
+        Merchant merchant=merchantList.get(0);
+        if(transaction==null){
+            transaction=new Transaction(merchant, applicationUser, notPayQRRequestDynamic.getTotalPrice(),
+                    notPayQRRequestDynamic.getService(), notPayQRRequestDynamic.getReceiptId(), false);
+            transaction=transactionService.save(transaction);
+            transactionLogService.save(new TransactionLog(transaction,false));
+        }
+
+        try {
+            restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
+                    "Customer decided not to proceed with payment"), notPayQRRequestDynamic.getReceiptId());
+        } catch (HttpStatusCodeException ex) {
+            throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
+        }
+        return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
+    }
+
+
     @PostMapping("/dynamic/cancel")
     public PaymentResponse cancelThePaymentDynamic(@Valid @RequestBody NotPayQRRequestDynamic notPayQRRequestDynamic){
+
 
         try {
             restService.updateTransactionStatus(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
