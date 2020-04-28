@@ -43,7 +43,8 @@ public class PasswordRecoveryController {
         ApplicationUser user=applicationUserService.getUserByUsernameOrEmail(passwordRecoverRequest.getUsernameOrEmail());
         if(user==null)
             throw new ResourceNotFoundException("User with credentials" + passwordRecoverRequest.getUsernameOrEmail() + " does not exist");
-        if(passwordRecoverRequest.getAnswer().equals(user.getAnswer().getText())){
+        if(passwordEncoder.matches(passwordRecoverRequest.getAnswer(), user.getAnswer().getText())){
+            //if(passwordRecoverRequest.getAnswer().equals(user.getAnswer().getText())){
             PasswordGenerator passwordGenerator = new PasswordGenerator.PasswordGeneratorBuilder()
                     .useDigits(true)
                     .useLower(true)

@@ -48,8 +48,8 @@ public class PasswordChangeController {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        if(passwordChangeRequest.getAnswer().equals(user.getAnswer().getText())) {
+        if(passwordEncoder.matches(passwordChangeRequest.getAnswer(), user.getAnswer().getText())){
+        //if(passwordChangeRequest.getAnswer().equals(user.getAnswer().getText())) {
             user.setPassword(passwordEncoder.encode(passwordChangeRequest.getNewPassword()));
             applicationUserService.save(user);
             return new ApiResponse(true, "Password changed successfully!");
