@@ -4,6 +4,7 @@ import ba.unsa.etf.si.payment.model.BankAccount;
 import ba.unsa.etf.si.payment.model.MoneyTransfer;
 import ba.unsa.etf.si.payment.repository.MoneyTransferRepository;
 import ba.unsa.etf.si.payment.response.transferResponse.TransferResponse;
+import ba.unsa.etf.si.payment.util.PaymentStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ public class MoneyTransferService {
     }
     public List<TransferResponse> findAllReceives(BankAccount bankAccount){
         List<TransferResponse> transfers = new ArrayList<>();
-        List<MoneyTransfer> moneyTransfers = moneyTransferRepository.findMoneyTransferByReceives(bankAccount);
+        List<MoneyTransfer> moneyTransfers = moneyTransferRepository.findMoneyTransferByReceivesAndPaymentStatus(bankAccount, PaymentStatus.PAID);
         moneyTransfers.forEach(moneyTransfer -> transfers.add(new TransferResponse(moneyTransfer.getId(),moneyTransfer.getReceives().getCardNumber(),
                 moneyTransfer.getSends().getCardNumber(),moneyTransfer.getCreatedAt(),
                 moneyTransfer.getMoneyAmount())));
@@ -29,7 +30,7 @@ public class MoneyTransferService {
     }
     public List<TransferResponse> findAllSends(BankAccount bankAccount){
         List<TransferResponse> transfers = new ArrayList<>();
-        List<MoneyTransfer> moneyTransfers = moneyTransferRepository.findMoneyTransferBySends(bankAccount);
+        List<MoneyTransfer> moneyTransfers = moneyTransferRepository.findMoneyTransferBySendsAndPaymentStatus(bankAccount, PaymentStatus.PAID);
         moneyTransfers.forEach(new Consumer<MoneyTransfer>() {
             @Override
             public void accept(MoneyTransfer moneyTransfer) {

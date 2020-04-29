@@ -40,12 +40,12 @@ public class Transaction extends AuditModel {
     private  BankAccount bankAccount;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "merchant_id")
+    @JoinColumn(name = "merchant_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Merchant merchant;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "application_user_id")
+    @JoinColumn(name = "application_user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ApplicationUser applicationUser;
 

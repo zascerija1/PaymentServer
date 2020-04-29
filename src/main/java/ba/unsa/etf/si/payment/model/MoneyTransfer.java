@@ -1,12 +1,11 @@
 package ba.unsa.etf.si.payment.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import ba.unsa.etf.si.payment.util.PaymentStatus;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -21,26 +20,35 @@ public class MoneyTransfer extends AuditModel {
     )
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "receives_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "receives_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private BankAccount receives;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "sends_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sends_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private BankAccount sends;
 
     @Column(name = "money_amount", nullable = false)
     private Double moneyAmount;
 
+    private PaymentStatus paymentStatus;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "sender_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private ApplicationUser sender;
+
     public MoneyTransfer() {
     }
 
-    public MoneyTransfer(BankAccount sends, BankAccount receives, Double moneyAmount) {
+    public MoneyTransfer(BankAccount sends, BankAccount receives, Double moneyAmount, PaymentStatus paymentStatus, ApplicationUser sender) {
         this.sends=sends;
         this.receives=receives;
         this.moneyAmount=moneyAmount;
+        this.paymentStatus = paymentStatus;
+        this.sender = sender;
     }
 
 
@@ -75,6 +83,22 @@ public class MoneyTransfer extends AuditModel {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public ApplicationUser getSender() {
+        return sender;
+    }
+
+    public void setSender(ApplicationUser sender) {
+        this.sender = sender;
     }
 }
 

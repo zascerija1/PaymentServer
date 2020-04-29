@@ -7,7 +7,8 @@ public enum PaymentStatus {
     PAID ("PAID"),
     INSUFFICIENT_FUNDS ("INSUFFICIENT_FUNDS"),
     INVALIDATED("INVALIDATED"),
-    PENDING("PENDING");
+    PENDING("PENDING"),
+    INVALID_DATA("INVALID_DATA");
 
     private String status;
 

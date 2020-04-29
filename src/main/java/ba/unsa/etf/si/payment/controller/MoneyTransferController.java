@@ -15,6 +15,7 @@ import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
 import ba.unsa.etf.si.payment.service.MoneyTransferService;
 import ba.unsa.etf.si.payment.util.MoneyTransferStatus;
+import ba.unsa.etf.si.payment.util.PaymentStatus;
 import ba.unsa.etf.si.payment.util.RequestValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
@@ -96,6 +97,7 @@ public class MoneyTransferController {
         if(moneyTransferRequest.getDestinationBankAccount().equals(moneyTransferRequest.getSourceBankAccount()))
             return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Please provide two different bank accounts!",null);
 
+        /*
         BankAccountUser bankAccountUserSource = bankAccountUserService
                 .findBankAccountUserByIdAndApplicationUserId(moneyTransferRequest.getSourceBankAccount(),
                         currentUserId);
@@ -109,22 +111,61 @@ public class MoneyTransferController {
         if (bankAccountUserDest == null)
             return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Bank account intended to be the destination of funds does not belong " +
                     "to the user whose id was provided!",null);
-        BankAccount source = bankAccountUserSource.getBankAccount();
-        BankAccount dest = bankAccountUserDest.getBankAccount();
-        if (source.getBalance() < moneyTransferRequest.getAmount())
-            return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Not enough funds to proceed with transfer!", null);
 
-        dest.setBalance(dest.getBalance() + moneyTransferRequest.getAmount());
-        source.setBalance(source.getBalance() - moneyTransferRequest.getAmount());
+         */
+        MoneyTransfer moneyTransfer=updateTransferLogs(moneyTransferRequest,currentUserId);
+        moneyTransfer.setMoneyAmount(moneyTransferRequest.getAmount());
+        if(moneyTransfer.getPaymentStatus().equals(PaymentStatus.INVALID_DATA)){
+            moneyTransferService.save(moneyTransfer);
+            return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Inconsistent data provided!", null);
+
+        }
+        BankAccount source = moneyTransfer.getSends();
+        BankAccount dest = moneyTransfer.getReceives();
+        if (source.getBalance() < moneyTransferRequest.getAmount()) {
+            moneyTransfer.setPaymentStatus(PaymentStatus.INSUFFICIENT_FUNDS);
+            moneyTransferService.save(moneyTransfer);
+            return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Not enough funds to proceed with transfer!", null);
+        }
+        dest.putIntoAccount(moneyTransferRequest.getAmount());
+        source.takeFromAccount( moneyTransferRequest.getAmount());
         bankAccountService.save(dest);
         bankAccountService.save(source);
+        moneyTransfer.setPaymentStatus(PaymentStatus.PAID);
+        moneyTransferService.save(moneyTransfer);
 
-        MoneyTransfer moneyTransfer= moneyTransferService
-                .save(new MoneyTransfer(source, dest, moneyTransferRequest.getAmount()));
         TransferResponse transferResponse=new TransferResponse(moneyTransfer.getId(), dest.getCardNumber(),
                 source.getCardNumber(), moneyTransfer.getCreatedAt(),moneyTransferRequest.getAmount());
 
         return new MoneyTransferResponse(MoneyTransferStatus.OK,
                 "Successfully transfered funds!", Collections.singletonList(transferResponse));
+    }
+
+    private MoneyTransfer updateTransferLogs(MoneyTransferRequest moneyTransferRequest, Long currentUserId){
+
+        ApplicationUser user = applicationUserService.find(currentUserId);
+        BankAccountUser bankAccountUserDest=bankAccountUserService.findBankAccountUserById(moneyTransferRequest.getDestinationBankAccount());
+        BankAccountUser bankAccountUserSource=bankAccountUserService.findBankAccountUserById(moneyTransferRequest.getSourceBankAccount());
+        MoneyTransfer moneyTransfer=new MoneyTransfer();
+        moneyTransfer.setPaymentStatus(PaymentStatus.PENDING);
+        moneyTransfer.setSender(user);
+        if (bankAccountUserDest!=null){
+            moneyTransfer.setReceives(bankAccountUserDest.getBankAccount());
+            if(!bankAccountUserDest.getApplicationUser().getId().equals(moneyTransferRequest.getDestAccountOwnerId()))
+                moneyTransfer.setPaymentStatus(PaymentStatus.INVALID_DATA);
+        }
+        else
+            moneyTransfer.setPaymentStatus(PaymentStatus.INVALID_DATA);
+
+        if (bankAccountUserSource!=null){
+            moneyTransfer.setSends(bankAccountUserSource.getBankAccount());
+            if(!bankAccountUserSource.getApplicationUser().getId().equals(currentUserId))
+                moneyTransfer.setPaymentStatus(PaymentStatus.INVALID_DATA);
+        }
+        else
+            moneyTransfer.setPaymentStatus(PaymentStatus.INVALID_DATA);
+
+        return moneyTransfer;
+
     }
 }
