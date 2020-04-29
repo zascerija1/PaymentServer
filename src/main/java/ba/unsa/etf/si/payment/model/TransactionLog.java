@@ -1,5 +1,6 @@
 package ba.unsa.etf.si.payment.model;
 
+import ba.unsa.etf.si.payment.util.PaymentStatus;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -24,24 +25,24 @@ public class TransactionLog extends AuditModel{
     private  Transaction transaction;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "bank_account_id",nullable = false)
+    @JoinColumn(name = "bank_account_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private  BankAccount bankAccount;
 
-    private Boolean success;
+    private PaymentStatus paymentStatus;
 
     public TransactionLog() {
     }
 
-    public TransactionLog(Transaction transaction, BankAccount bankAccount, Boolean success){
+    public TransactionLog(Transaction transaction, BankAccount bankAccount, PaymentStatus paymentStatus){
         this.transaction=transaction;
         this.bankAccount=bankAccount;
-        this.success=success;
+        this.paymentStatus = paymentStatus;
     }
 
-    public TransactionLog(Transaction transaction, Boolean success){
+    public TransactionLog(Transaction transaction, PaymentStatus paymentStatus){
         this.transaction=transaction;
-        this.success=success;
+        this.paymentStatus = paymentStatus;
     }
 
     public UUID getId() {
@@ -68,11 +69,13 @@ public class TransactionLog extends AuditModel{
         this.bankAccount = bankAccount;
     }
 
-    public Boolean getSuccess() {
-        return success;
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
     }
 
-    public void setSuccess(Boolean success) {
-        this.success = success;
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }
+
+

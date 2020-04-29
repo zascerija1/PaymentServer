@@ -6,6 +6,7 @@ public enum PaymentStatus {
     CANCELED ("CANCELED"),
     PAID ("PAID"),
     INSUFFICIENT_FUNDS ("INSUFFICIENT_FUNDS"),
+    INVALIDATED("INVALIDATED"),
     PENDING("PENDING");
 
     private String status;

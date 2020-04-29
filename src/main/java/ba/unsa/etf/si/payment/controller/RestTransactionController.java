@@ -73,7 +73,7 @@ public class RestTransactionController {
         }
         Merchant merchant=merchantList.get(0);
         Transaction transaction=new Transaction(merchant, applicationUser, mainInfoResponse.getTotalPrice(),
-                mainInfoResponse.getService(), mainInfoResponse.getReceiptId(), false);
+                mainInfoResponse.getService(), mainInfoResponse.getReceiptId(), PaymentStatus.PENDING);
         Transaction transaction1=transactionService.save(transaction);
         return new TransactionSubmitResponse(transaction1.getId(), mainInfoResponse.getTotalPrice(), mainInfoResponse.getService());
     }
@@ -95,10 +95,11 @@ public class RestTransactionController {
         PaymentResponse paymentResponseReq=processTheRequest(transaction);
         if(paymentResponseReq!=null) return paymentResponseReq;
 
-        TransactionLog transactionLog=new TransactionLog(transaction, false);
+        TransactionLog transactionLog=new TransactionLog(transaction,  PaymentStatus.PROBLEM);
 
         BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(payQRRequest.getBankAccountId());
         if(bankAccountUser==null){
+           // transactionLog.setPaymentStatus(PaymentStatus.PROBLEM);
             transactionLogService.save(transactionLog);
             return new PaymentResponse(PaymentStatus.CANCELED, "Nonexistent bank account!");
         }
@@ -111,8 +112,10 @@ public class RestTransactionController {
         if(paymentResponse.getPaymentStatus().equals(PaymentStatus.PAID)) {
             //BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(payQRRequest.getBankAccountId());
             transaction.setBankAccount(bankAccountUser.getBankAccount());
-            transaction.setProcessed(true);
-            transactionLog.setSuccess(true);
+            transaction.setPaymentStatus(PaymentStatus.PAID);
+            Merchant merchant=transaction.getMerchant();
+            merchant.getBankAccount().putIntoAccount(transaction.getTotalPrice());
+            bankAccountService.save(merchant.getBankAccount());
             // TODO: 4/28/2020 vratiti ovo
             /*
             try {
@@ -125,6 +128,7 @@ public class RestTransactionController {
              */
             transactionService.save(transaction);
         }
+        transactionLog.setPaymentStatus(paymentResponse.getPaymentStatus());
         transactionLogService.save(transactionLog);
         return paymentResponse;
     }
@@ -148,14 +152,14 @@ public class RestTransactionController {
         Transaction transaction=transactionService.findByReceiptId(dynamicQRRequest.getReceiptId());
         if(transaction==null){
                 transaction=new Transaction(merchant, applicationUser, dynamicQRRequest.getTotalPrice(),
-                    dynamicQRRequest.getService(), dynamicQRRequest.getReceiptId(), false);
+                    dynamicQRRequest.getService(), dynamicQRRequest.getReceiptId(), PaymentStatus.PENDING);
                 transaction=transactionService.save(transaction);
         }
         else{
             PaymentResponse paymentResponse=processTheRequest(transaction);
            if(paymentResponse!=null) return paymentResponse;
         }
-        TransactionLog transactionLog=new TransactionLog(transaction, false);
+        TransactionLog transactionLog=new TransactionLog(transaction, PaymentStatus.PROBLEM);
         BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(dynamicQRRequest.getBankAccountId());
         if(bankAccountUser==null){
             transactionLogService.save(transactionLog);
@@ -171,8 +175,11 @@ public class RestTransactionController {
 
            // Transaction transaction=new Transaction(merchant, applicationUser, dynamicQRRequest.getTotalPrice(),
                     //dynamicQRRequest.getService(), dynamicQRRequest.getReceiptId(), true);
-            transaction.setProcessed(true);
+            transaction.setPaymentStatus(PaymentStatus.PAID);
             transaction.setBankAccount(bankAccountUser.getBankAccount());
+            // TODO: 4/29/2020 i ovo mozda refaktorisati?
+            merchant.getBankAccount().putIntoAccount(transaction.getTotalPrice());
+            bankAccountService.save(merchant.getBankAccount());
             // TODO: 4/28/2020 vratiti ovo
             /*
             try {
@@ -185,6 +192,7 @@ public class RestTransactionController {
              */
             transactionService.save(transaction);
         }
+        transactionLog.setPaymentStatus(paymentResponse.getPaymentStatus());
         transactionLogService.save(transactionLog);
         return paymentResponse;
     }
@@ -199,7 +207,10 @@ public class RestTransactionController {
             if (transaction == null) {
                 return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
             }
-            if (transaction.getProcessed()) {
+
+            //Ovo provjeriti
+            // TODO: 4/28/2020
+            if (transaction.getPaymentStatus()!=PaymentStatus.PENDING) {
                 return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
             }
             return bankAccountUserService.checkBalanceForPayment(checkBalanceRequest.getBankAccountId(), userPrincipal.getId(),
@@ -223,11 +234,13 @@ public class RestTransactionController {
         if(transaction==null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
         }
-        if(transaction.getProcessed()){
+        // TODO: 4/28/2020
+        if(transaction.getPaymentStatus()!=PaymentStatus.PENDING){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
 
-        if(processTheRequest(transaction)!=null) return new PaymentResponse(PaymentStatus.CANCELED, "Transaction closed!");
+        PaymentResponse paymentResponse = processTheRequest(transaction);
+        if(paymentResponse!=null) return paymentResponse;
 
         /*
         try {
@@ -240,11 +253,13 @@ public class RestTransactionController {
          */
 
         //transactionService.delete(transaction.getId());
+        updateTransactionStatus(transaction, PaymentStatus.CANCELED);
+        transactionLogService.save(new TransactionLog(transaction,PaymentStatus.CANCELED));
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
     }
 
-    @PostMapping("/dynamic/cancel2")
-    public PaymentResponse cancelThePaymentDynamic2(@Valid @RequestBody NotPayQRRequestDynamic notPayQRRequestDynamic,
+    @PostMapping("/dynamic/cancel")
+    public PaymentResponse cancelThePaymentDynamic(@Valid @RequestBody NotPayQRRequestDynamic notPayQRRequestDynamic,
                                                     @CurrentUser UserPrincipal userPrincipal,
                                                     BindingResult bindingResult){
         RequestValidator.validateRequest(bindingResult);
@@ -261,14 +276,14 @@ public class RestTransactionController {
         Merchant merchant=merchantList.get(0);
         if(transaction==null){
             transaction=new Transaction(merchant, applicationUser, notPayQRRequestDynamic.getTotalPrice(),
-                    notPayQRRequestDynamic.getService(), notPayQRRequestDynamic.getReceiptId(), false);
+                    notPayQRRequestDynamic.getService(), notPayQRRequestDynamic.getReceiptId(), PaymentStatus.CANCELED);
             transaction=transactionService.save(transaction);
-            transactionLogService.save(new TransactionLog(transaction,false));
+
         }
-        else if(transaction.getProcessed()){
+        // TODO: 4/28/2020
+        else if(transaction.getPaymentStatus()!=PaymentStatus.PENDING){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
-
         if(processTheRequest(transaction)!=null) return new PaymentResponse(PaymentStatus.CANCELED, "Transaction closed!");
 
         // TODO: 4/28/2020 vratiti ovo
@@ -280,12 +295,14 @@ public class RestTransactionController {
             throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
         }
          */
+        updateTransactionStatus(transaction, PaymentStatus.CANCELED);
+        transactionLogService.save(new TransactionLog(transaction,PaymentStatus.CANCELED));
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
     }
 
 
-    @PostMapping("/dynamic/cancel")
-    public PaymentResponse cancelThePaymentDynamic(@Valid @RequestBody NotPayQRRequestDynamic notPayQRRequestDynamic){
+    @PostMapping("/dynamic/cancel2")
+    public PaymentResponse cancelThePaymentDynamic2(@Valid @RequestBody NotPayQRRequestDynamic notPayQRRequestDynamic){
 
 
         try {
@@ -318,7 +335,7 @@ public class RestTransactionController {
         if(paymentResponse.getPaymentStatus()==(PaymentStatus.PAID)) {
             BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(payQRRequest.getBankAccountId());
             transaction.setBankAccount(bankAccountUser.getBankAccount());
-            transaction.setProcessed(true);
+            transaction.setPaymentStatus(PaymentStatus.PAID);
             transactionService.save(transaction);
         }
         return paymentResponse;
@@ -334,7 +351,7 @@ public class RestTransactionController {
         if(transaction==null){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
         }
-        if(transaction.getProcessed()){
+        if(transaction.getPaymentStatus()!=PaymentStatus.PENDING){
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
         transactionService.delete(transaction.getId());
@@ -344,16 +361,18 @@ public class RestTransactionController {
     private PaymentResponse processTheRequest(Transaction transaction){
         Integer attempts=transactionLogService.getNumberOfAttempts(transaction.getId());
         if(attempts>4){
-           // updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Transaction closed due to many faulty attempts!"), transaction.getReceiptId());
-            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! You have reached" +
+            updateTransactionStatus(transaction, PaymentStatus.INVALIDATED);
+            // updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Transaction closed due to many faulty attempts!"), transaction.getReceiptId());
+            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer access this transaction! You have reached" +
                     " the limit of 5 attempts!");
         }
         Date now=new Date();
         long diffInMillies = Math.abs(now.getTime() - transaction.getCreatedAt().getTime());
         long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
         if(diff>4){
+            updateTransactionStatus(transaction, PaymentStatus.INVALIDATED);
            // updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Transaction expired"), transaction.getReceiptId());
-            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer proceed with payment! Transaction closes" +
+            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer access this transaction! Transaction closes" +
                     " after 5 minutes!");
         }
         return null;
@@ -366,5 +385,10 @@ public class RestTransactionController {
         } catch (HttpStatusCodeException ex) {
             throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
         }
+    }
+
+    private void updateTransactionStatus(Transaction transaction, PaymentStatus paymentStatus){
+        transaction.setPaymentStatus(paymentStatus);
+        transactionService.save(transaction);
     }
 }

@@ -101,4 +101,12 @@ public class BankAccount extends AuditModel {
     public void setBank(Bank bank) {
         this.bank = bank;
     }
+
+    public void putIntoAccount(Double balance){
+        this.balance+=balance;
+    }
+
+    public void takeFromAccount(Double balance){
+        this.balance-=balance;
+    }
 }
