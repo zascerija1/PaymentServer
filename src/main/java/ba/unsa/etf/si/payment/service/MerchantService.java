@@ -13,7 +13,7 @@ public class MerchantService {
     public MerchantService(MerchantRepository merchantRepository) {
         this.merchantRepository = merchantRepository;
     }
-    public List<Merchant> find(String merchantName){
+    public Merchant find(String merchantName){
         return merchantRepository.findByMerchantName(merchantName);
     }
 
