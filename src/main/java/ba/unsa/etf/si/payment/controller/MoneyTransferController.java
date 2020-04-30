@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/accounts/moneyTransfer")
@@ -135,7 +136,7 @@ public class MoneyTransferController {
         moneyTransferService.save(moneyTransfer);
 
         TransferResponse transferResponse=new TransferResponse(moneyTransfer.getId(), dest.getCardNumber(),
-                source.getCardNumber(), moneyTransfer.getCreatedAt(),moneyTransferRequest.getAmount());
+                source.getCardNumber(), moneyTransfer.getCreatedAt(),moneyTransferRequest.getAmount(), PaymentStatus.PAID);
 
         return new MoneyTransferResponse(MoneyTransferStatus.OK,
                 "Successfully transfered funds!", Collections.singletonList(transferResponse));
@@ -166,6 +167,11 @@ public class MoneyTransferController {
             moneyTransfer.setPaymentStatus(PaymentStatus.INVALID_DATA);
 
         return moneyTransfer;
+    }
 
+    @GetMapping("/{transferId}")
+    public MoneyTransferResponse getTransferDetails(@PathVariable UUID transferId, @CurrentUser UserPrincipal currentUser){
+        // TODO: 4/30/2020 mozda dodati isto provjere je li mu pripadaju, we shall see.. 
+        return moneyTransferService.getTransferInfo(transferId);
     }
 }
