@@ -1,5 +1,6 @@
 package ba.unsa.etf.si.payment.model;
 
+import ba.unsa.etf.si.payment.util.PaymentStatus;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
@@ -39,12 +40,12 @@ public class Transaction extends AuditModel {
     private  BankAccount bankAccount;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "merchant_id")
+    @JoinColumn(name = "merchant_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Merchant merchant;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "application_user_id")
+    @JoinColumn(name = "application_user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ApplicationUser applicationUser;
 
@@ -57,16 +58,21 @@ public class Transaction extends AuditModel {
     @Column(columnDefinition = "text")
     private String receiptId;
 
+    /*
     @Column(name="processed")
     private Boolean processed;
+     */
+    @Column(name="payment_status")
+    private PaymentStatus paymentStatus;
 
-    public Transaction(Merchant merchant, ApplicationUser applicationUser, Double totalPrice, String service, String receiptId, Boolean processed) {
+
+    public Transaction(Merchant merchant, ApplicationUser applicationUser, Double totalPrice, String service, String receiptId, PaymentStatus paymentStatus) {
         this.merchant=merchant;
         this.applicationUser=applicationUser;
         this.totalPrice=totalPrice;
         this.service=service;
         this.receiptId=receiptId;
-        this.processed = processed;
+        this.paymentStatus=paymentStatus;
     }
 
     public Transaction() {
@@ -129,11 +135,11 @@ public class Transaction extends AuditModel {
         this.receiptId = receiptId;
     }
 
-    public Boolean getProcessed() {
-        return processed;
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
     }
 
-    public void setProcessed(Boolean processed) {
-        this.processed = processed;
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }
