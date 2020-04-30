@@ -112,6 +112,7 @@ public class AuthController {
         }
 
         Question question=questionService.findById(questionId).get();
+        user.getAnswer().setText(passwordEncoder.encode(user.getAnswer().getText()));
         user.getAnswer().setQuestion(question);
         answerService.save(user.getAnswer());
         ApplicationUser result = userRepository.save(user);
