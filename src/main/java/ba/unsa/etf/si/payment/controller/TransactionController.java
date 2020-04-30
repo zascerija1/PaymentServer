@@ -3,24 +3,26 @@ package ba.unsa.etf.si.payment.controller;
 
 import ba.unsa.etf.si.payment.exception.BadRequestException;
 import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
+import ba.unsa.etf.si.payment.model.BankAccount;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
+import ba.unsa.etf.si.payment.model.Transaction;
 import ba.unsa.etf.si.payment.request.filters.DateFilterRequest;
 import ba.unsa.etf.si.payment.request.filters.PriceFilterRequest;
 import ba.unsa.etf.si.payment.response.ApiResponse;
 import ba.unsa.etf.si.payment.response.transactionResponse.TransactionDataResponse;
+import ba.unsa.etf.si.payment.response.transactionResponse.TransactionDetailResponse;
+import ba.unsa.etf.si.payment.response.transactionResponse.TransactionLogResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
 import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
+import ba.unsa.etf.si.payment.service.TransactionLogService;
 import ba.unsa.etf.si.payment.service.TransactionService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -28,10 +30,12 @@ public class TransactionController {
 
     private final TransactionService transactionService;
     private final BankAccountUserService bankAccountUserService;
+    private final TransactionLogService transactionLogService;
 
-    public TransactionController(TransactionService transactionService, BankAccountUserService bankAccountUserService, BankAccountService bankAccountService) {
+    public TransactionController(TransactionService transactionService, BankAccountUserService bankAccountUserService, BankAccountService bankAccountService, TransactionLogService transactionLogService) {
         this.transactionService = transactionService;
         this.bankAccountUserService = bankAccountUserService;
+        this.transactionLogService = transactionLogService;
     }
 
     @GetMapping("/all")
@@ -100,5 +104,25 @@ public class TransactionController {
     public ApiResponse deleteTransaction(@PathVariable UUID transactionId){
         transactionService.delete(transactionId);
         return new ApiResponse(true, "Transaction deleted successfully.");
+    }
+
+    @GetMapping("/details/{transactionId}")
+    public TransactionDetailResponse getAllTransactionAttempts(@PathVariable UUID transactionId, @CurrentUser UserPrincipal currentUser){
+        Transaction transaction = transactionService.findByTransactionId(transactionId);
+        if(transaction==null)
+            throw new ResourceNotFoundException("Transaction does not exist");
+        if(!transaction.getApplicationUser().getId().equals(currentUser.getId()))
+            throw new BadRequestException("Unauthorized access!");
+        BankAccount bankAccount=transaction.getBankAccount();
+        String cardNumber=null;
+        if(bankAccount!=null)
+            cardNumber = bankAccount.getCardNumber();
+        List<TransactionLogResponse> transactionLogResponses=transactionLogService.getAllTransactionAttempts(transactionId);
+        TransactionDataResponse transactionDetailResponse=new TransactionDataResponse(transaction.getId(),
+                cardNumber,
+                transaction.getMerchant().getMerchantName(),
+                transaction.getCreatedAt(), transaction.getTotalPrice(),
+                transaction.getService());
+        return new TransactionDetailResponse(transactionDetailResponse, transactionLogResponses, transaction.getPaymentStatus());
     }
 }
