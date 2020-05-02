@@ -104,8 +104,9 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
-        public Transaction findByReceiptId(String receiptId){
+    public Transaction findByReceiptId(String receiptId){
         Optional<Transaction> optTransaction= transactionRepository.findByReceiptId(receiptId);
         return optTransaction.orElse(null);
     }
+
 }
