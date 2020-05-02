@@ -26,6 +26,11 @@ public class NotificationController {
     public List<NotificationResponse> getAllNotifications(@CurrentUser UserPrincipal currentUser){
         return notificationService.getAllUserNotifications(currentUser.getId());
     }
+
+    @GetMapping("/unread")
+    public List<NotificationResponse> getUnreadNotifications(@CurrentUser UserPrincipal currentUser){
+        return notificationService.getAllUnreadUserNotifications(currentUser.getId());
+    }
     @GetMapping("/specific/{notificationId}")
     public NotificationResponse getAllNotifications(@PathVariable UUID notificationId, @CurrentUser UserPrincipal currentUser){
         return notificationService.getOneUserNotification(notificationId, currentUser.getId());

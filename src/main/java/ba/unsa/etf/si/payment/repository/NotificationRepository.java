@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
     List<Notification> findAllByApplicationUser_Id(Long applicationId);
     Notification findByIdAndApplicationUser_Id(UUID notificationId, Long applicationUserId);
+    List<Notification> findAllByApplicationUser_IdAndRead(Long applicationUserId, Boolean read);
 }

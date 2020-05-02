@@ -34,6 +34,14 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
+    public List<NotificationResponse> getAllUnreadUserNotifications(Long applicationUserId){
+        return notificationRepository
+                .findAllByApplicationUser_IdAndRead(applicationUserId, false)
+                .stream()
+                .map(notificationHandler::buildNotificationResponse)
+                .collect(Collectors.toList());
+    }
+
     public NotificationResponse getOneUserNotification (UUID notificationId, Long userId){
         Notification notification=notificationRepository.findByIdAndApplicationUser_Id(notificationId,userId);
         if(notification==null){
