@@ -1,17 +1,17 @@
 package ba.unsa.etf.si.payment.service;
 
 import ba.unsa.etf.si.payment.model.BankAccount;
+import ba.unsa.etf.si.payment.model.BankAccountUser;
 import ba.unsa.etf.si.payment.model.Merchant;
 import ba.unsa.etf.si.payment.model.Transaction;
 import ba.unsa.etf.si.payment.repository.TransactionRepository;
+import ba.unsa.etf.si.payment.response.transactionResponse.BankAccountLimitResponse;
 import ba.unsa.etf.si.payment.response.transactionResponse.TransactionDataResponse;
+import ba.unsa.etf.si.payment.util.PaymentStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,10 +24,10 @@ public class TransactionService {
     }
 
     public List<Transaction> findByMerchantName(String merchantName){
-        return transactionRepository.findAllByMerchant_MerchantNameAndProcessed(merchantName,true);
+        return transactionRepository.findAllByMerchant_MerchantNameAndPaymentStatus(merchantName,PaymentStatus.PAID);
     }
 
-    public Transaction findByTransactionId(Long id){
+    public Transaction findByTransactionId(UUID id){
         Optional<Transaction> optTransaction= transactionRepository.findById(id);
         return optTransaction.orElse(null);
     }
@@ -38,14 +38,14 @@ public class TransactionService {
 
     public List<TransactionDataResponse> findAllTransactionsByUserId(Long id){
         return  getTransactionData(transactionRepository
-                .findByApplicationUser_IdAndProcessed(id,true));
+                .findByApplicationUser_IdAndPaymentStatus(id,PaymentStatus.PAID));
 
     }
 
     public List<TransactionDataResponse> findAllTransactionsByBankAccount(Long bankAccountId){
 
         return  getTransactionData(transactionRepository
-                .findAllByBankAccount_IdAndProcessed(bankAccountId,true));
+                .findAllByBankAccount_IdAndPaymentStatus(bankAccountId,PaymentStatus.PAID));
 
     }
 
@@ -56,18 +56,27 @@ public class TransactionService {
 
     public List<TransactionDataResponse> findAllTransactionsByUserAndDateBetween(Long userId, Date startDate, Date endDate){
         return getTransactionData(transactionRepository
-                .findAllByApplicationUser_IdAndCreatedAtBetweenAndProcessed(userId, startDate, endDate,true));
+                .findAllByApplicationUser_IdAndCreatedAtBetweenAndPaymentStatus(userId, startDate, endDate, PaymentStatus.PAID));
 
     }
 
     public List<TransactionDataResponse> findAllTransactionsByUserAndMerchantName(Long userId, String merchantName){
         return getTransactionData(transactionRepository
-                .findAllByApplicationUser_IdAndMerchant_MerchantNameAndProcessed(userId, merchantName,true));
+                .findAllByApplicationUser_IdAndMerchant_MerchantNameAndPaymentStatus(userId, merchantName,PaymentStatus.PAID));
 
     }
 
+    public List<TransactionDataResponse> findAllTransactionInRecentDays (Long userId, Integer days){
+        Date endDate = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(endDate);
+        cal.add(Calendar.DATE, days*(-1));
+        Date startDate = cal.getTime();
+        return findAllTransactionsByUserAndDateBetween(userId, startDate, endDate);
+    }
+
     public List<TransactionDataResponse> findAllTransactionsByUserIdAndService(Long userId, String service){
-        return transactionRepository.findByApplicationUser_IdAndProcessed(userId, true)
+        return transactionRepository.findByApplicationUser_IdAndPaymentStatus(userId, PaymentStatus.PAID)
                 .stream()
                 .filter(transaction -> transaction.getService().toLowerCase().contains(service.toLowerCase()))
                 .map(transaction -> {
@@ -84,7 +93,17 @@ public class TransactionService {
 
     public List<TransactionDataResponse> findAllTransactionsByUserAndTotalPriceBetween(Long userId, Double minPrice, Double maxPrice){
         return getTransactionData(transactionRepository
-                .findAllByApplicationUser_IdAndTotalPriceBetweenAndProcessed(userId, minPrice, maxPrice,true));
+                .findAllByApplicationUser_IdAndTotalPriceBetweenAndPaymentStatus(userId, minPrice, maxPrice,PaymentStatus.PAID));
+
+    }
+
+    public List<TransactionDataResponse> findAllTransactionsByUserAccountAndMonth(Long userId, Long bankAccountId){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.HOUR, 0);
+        return getTransactionData(transactionRepository
+                .findAllByApplicationUser_IdAndCreatedAtBetweenAndPaymentStatusAndBankAccount_Id(userId,
+                        cal.getTime(), new Date(), PaymentStatus.PAID, bankAccountId));
 
     }
 
@@ -101,6 +120,27 @@ public class TransactionService {
                             transaction.getService());
                 })
                 .collect(Collectors.toList());
-
     }
+
+    public Transaction findByReceiptId(String receiptId){
+        Optional<Transaction> optTransaction= transactionRepository.findByReceiptId(receiptId);
+        return optTransaction.orElse(null);
+    }
+
+    public BankAccountLimitResponse checkMonthlyExpenses(BankAccountUser bankAccountUser, Double limit){
+
+
+        List<TransactionDataResponse> transactionDataResponseList =
+                findAllTransactionsByUserAccountAndMonth(bankAccountUser.getApplicationUser().getId(),bankAccountUser.getBankAccount().getId());
+        double sum = transactionDataResponseList.stream()
+                .mapToDouble(TransactionDataResponse::getTotalPrice)
+                .sum();
+        boolean above = false;
+        if (sum > limit) above = true;
+        BankAccount bankAccount = bankAccountUser.getBankAccount();
+        return new BankAccountLimitResponse(bankAccountUser.getId(),
+                bankAccount.getBank().getBankName(),
+                bankAccount.getCardNumber(), above, sum, transactionDataResponseList);
+    }
+
 }

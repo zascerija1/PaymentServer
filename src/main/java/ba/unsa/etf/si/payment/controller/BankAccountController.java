@@ -13,6 +13,7 @@ import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.ApplicationUserService;
 import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
@@ -23,12 +24,14 @@ public class BankAccountController {
     private final BankAccountUserService bankAccountUserService;
     private final BankAccountService bankAccountService;
     private final ApplicationUserService applicationUserService;
+    private final PasswordEncoder passwordEncoder;
 
 
-    public BankAccountController(BankAccountUserService bankAccountUserService, BankAccountService bankAccountService, ApplicationUserService applicationUserService) {
+    public BankAccountController(BankAccountUserService bankAccountUserService, BankAccountService bankAccountService, ApplicationUserService applicationUserService, PasswordEncoder passwordEncoder) {
         this.bankAccountUserService = bankAccountUserService;
         this.bankAccountService = bankAccountService;
         this.applicationUserService = applicationUserService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     //All accounts that belong to current user
@@ -40,7 +43,7 @@ public class BankAccountController {
     //Add account
     @PostMapping("/add")
     public BankAccManageResponse addBankAccount(@Valid @RequestBody BankAccountRequest bankAccountRequest, @CurrentUser UserPrincipal currentUser) {
-        List<BankAccount> bankAccounts=bankAccountService.find(bankAccountRequest.getCvc(), bankAccountRequest.getCardNumber());
+        List<BankAccount> bankAccounts=bankAccountService.findByCardNumber(bankAccountRequest.getCardNumber());
         if(bankAccounts.isEmpty()){
             throw new ResourceNotFoundException("Bank account is not valid!");
         }
@@ -50,6 +53,11 @@ public class BankAccountController {
 
         //If user doesn't match account owner
         BankAccount acc = bankAccounts.get(0);
+
+        //If cvc entered doesn't math encrypted cvc in database
+        if (!passwordEncoder.matches(bankAccountRequest.getCvc(), acc.getCvc())){
+            throw new ResourceNotFoundException("Bank account is not valid!");
+        }
         ApplicationUser currUser = applicationUserService.find(currentUser.getId());
         if(!acc.getAccountOwner().equals(currUser.getFirstName()+" "+currUser.getLastName())){
             return new BankAccManageResponse(false, "User and account owner do not match");

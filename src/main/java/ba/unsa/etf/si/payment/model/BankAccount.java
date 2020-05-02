@@ -40,8 +40,6 @@ public class BankAccount extends AuditModel {
     private Date expiryDate;
 
     @Column(columnDefinition = "text")
-    @Length(min = 3, max = 3)
-    @CardValidation(message = "Card validation code is not valid!")
     private String cvc;
 
     @Column(columnDefinition = "text")
@@ -102,5 +100,13 @@ public class BankAccount extends AuditModel {
 
     public void setBank(Bank bank) {
         this.bank = bank;
+    }
+
+    public void putIntoAccount(Double balance){
+        this.balance+=balance;
+    }
+
+    public void takeFromAccount(Double balance){
+        this.balance-=balance;
     }
 }
