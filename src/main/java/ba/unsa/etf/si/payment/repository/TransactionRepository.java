@@ -19,6 +19,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     List<Transaction> findAllByApplicationUser_IdAndCreatedAtBetweenAndPaymentStatus(Long id, Date startDate, Date endDate, PaymentStatus paymentStatus);
     List<Transaction> findAllByApplicationUser_IdAndMerchant_MerchantNameAndPaymentStatus(Long id, String merchantName, PaymentStatus paymentStatus);
     List<Transaction> findAllByApplicationUser_IdAndTotalPriceBetweenAndPaymentStatus(Long id, Double minPrice, Double maxPrice, PaymentStatus paymentStatus);
+    List<Transaction> findAllByApplicationUser_IdAndCreatedAtBetweenAndPaymentStatusAndBankAccount_Id(Long userId, Date startDate, Date endDate, PaymentStatus paymentStatus, Long bankAccountId);
     void deleteById(UUID id);
     Optional<Transaction> findByReceiptId(String receiptId);
 }

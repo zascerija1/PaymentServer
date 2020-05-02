@@ -16,17 +16,19 @@ public class NotificationResponse {
     private NotificationType notificationType;
     @JsonFormat(pattern="dd.MM.yyyy HH:mm:ss",timezone="Europe/Sarajevo")
     private Date notificationDateAndTime;
+    private Boolean read;
 
     public NotificationResponse() {
     }
 
-    public NotificationResponse(UUID id, String subjectId, String message, NotificationStatus notificationStatus, NotificationType notificationType, Date notificationDateAndTime) {
+    public NotificationResponse(UUID id, String subjectId, String message, NotificationStatus notificationStatus, NotificationType notificationType, Date notificationDateAndTime, Boolean read) {
         this.notificationId = id;
         this.subjectId = subjectId;
         this.message = message;
         this.notificationStatus = notificationStatus;
         this.notificationType = notificationType;
         this.notificationDateAndTime = notificationDateAndTime;
+        this.read = read;
     }
 
     public UUID getNotificationId() {
@@ -75,5 +77,13 @@ public class NotificationResponse {
 
     public void setNotificationDateAndTime(Date notificationDateAndTime) {
         this.notificationDateAndTime = notificationDateAndTime;
+    }
+
+    public Boolean getRead() {
+        return read;
+    }
+
+    public void setRead(Boolean read) {
+        this.read = read;
     }
 }

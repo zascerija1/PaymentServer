@@ -1,6 +1,5 @@
 package ba.unsa.etf.si.payment.model;
 
-import ba.unsa.etf.si.payment.response.NotificationResponse;
 import ba.unsa.etf.si.payment.util.NotificationUtil.NotificationStatus;
 import ba.unsa.etf.si.payment.util.NotificationUtil.NotificationType;
 import org.hibernate.annotations.GenericGenerator;
@@ -38,6 +37,8 @@ public class Notification extends AuditModel {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ApplicationUser applicationUser;
 
+    private Boolean read;
+
 
     public Notification() {
     }
@@ -48,6 +49,7 @@ public class Notification extends AuditModel {
         this.subjectId = subjectId;
         this.notificationMessage = notificationMessage;
         this.applicationUser=applicationUser;
+        this.read = false;
     }
 
     public NotificationStatus getNotificationStatus() {
@@ -96,5 +98,13 @@ public class Notification extends AuditModel {
 
     public void setSubjectId(String subjectId) {
         this.subjectId = subjectId;
+    }
+
+    public Boolean getRead() {
+        return read;
+    }
+
+    public void setRead(Boolean read) {
+        this.read = read;
     }
 }

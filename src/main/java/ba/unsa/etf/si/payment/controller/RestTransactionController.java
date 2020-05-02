@@ -3,22 +3,31 @@ package ba.unsa.etf.si.payment.controller;
 
 import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
 import ba.unsa.etf.si.payment.model.*;
-import ba.unsa.etf.si.payment.request.qrCodes.*;
 import ba.unsa.etf.si.payment.request.TransacationSuccessRequest;
-import ba.unsa.etf.si.payment.response.*;
+import ba.unsa.etf.si.payment.request.qrCodes.*;
+import ba.unsa.etf.si.payment.response.MainInfoResponse;
+import ba.unsa.etf.si.payment.response.transactionResponse.BankAccountLimitResponse;
 import ba.unsa.etf.si.payment.response.transactionResponse.PaymentResponse;
 import ba.unsa.etf.si.payment.response.transactionResponse.TransactionSubmitResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
 import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.*;
+import ba.unsa.etf.si.payment.util.NotificationUtil.MessageConstants;
+import ba.unsa.etf.si.payment.util.NotificationUtil.NotificationHandler;
+import ba.unsa.etf.si.payment.util.NotificationUtil.NotificationStatus;
+import ba.unsa.etf.si.payment.util.NotificationUtil.NotificationType;
 import ba.unsa.etf.si.payment.util.PaymentStatus;
 import ba.unsa.etf.si.payment.util.RequestValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -32,15 +41,18 @@ public class RestTransactionController {
     private final TransactionLogService transactionLogService;
     private final BankAccountService bankAccountService;
     private final BankAccountUserService bankAccountUserService;
-    private final String attemptsMessage = " You have reached the limit od 5 attempts!";
+    private final NotificationService notificationService;
+    private final NotificationHandler notificationHandler;
 
-    public RestTransactionController(RestService restService, MerchantService merchantService, TransactionService transactionService, TransactionLogService transactionLogService, BankAccountService bankAccountService, BankAccountUserService bankAccountUserService) {
+    public RestTransactionController(RestService restService, MerchantService merchantService, TransactionService transactionService, TransactionLogService transactionLogService, BankAccountService bankAccountService, BankAccountUserService bankAccountUserService, NotificationService notificationService, NotificationHandler notificationHandler) {
         this.restService = restService;
         this.merchantService = merchantService;
         this.transactionService = transactionService;
         this.transactionLogService = transactionLogService;
         this.bankAccountService = bankAccountService;
         this.bankAccountUserService = bankAccountUserService;
+        this.notificationService = notificationService;
+        this.notificationHandler = notificationHandler;
     }
 
 
@@ -69,6 +81,8 @@ public class RestTransactionController {
         if (merchant == null) {
             updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
                     "Business not registered for this service"), mainInfoResponse.getReceiptId());
+            throw new ResourceNotFoundException("Business not registered for this service");
+
         }
         Transaction transaction = new Transaction(merchant, applicationUser, mainInfoResponse.getTotalPrice(),
                 mainInfoResponse.getService(), mainInfoResponse.getReceiptId(), PaymentStatus.PENDING);
@@ -85,14 +99,13 @@ public class RestTransactionController {
         Transaction transaction = transactionService.findByIdAndApplicationUser_Id(payQRRequest.getTransactionId(), userPrincipal.getId());
         if (transaction == null)
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transactionId! Try again");
-
-        if (transaction.getBankAccount() != null || transaction.getPaymentStatus() != PaymentStatus.PENDING)
+        int attempts = transactionLogService.getNumberOfAttempts(transaction.getId()) + 1;
+        if (transaction.getBankAccount() != null || transaction.getPaymentStatus() != PaymentStatus.PENDING || attempts>5)
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
 
 
         PaymentResponse paymentResponseReq = processTheTransactionExpiration(transaction);
         if (paymentResponseReq != null) return paymentResponseReq;
-        int attempts = transactionLogService.getNumberOfAttempts(transaction.getId()) + 1;
         String message = "";
 
         TransactionLog transactionLog = new TransactionLog(transaction, PaymentStatus.PROBLEM);
@@ -100,10 +113,11 @@ public class RestTransactionController {
         BankAccountUser bankAccountUser = bankAccountUserService.findBankAccountUserById(payQRRequest.getBankAccountId());
         if (bankAccountUser == null) {
             if (attempts > 4) {
-                message = attemptsMessage;
+                message = MessageConstants.ATTEMPTS;
                 updateTransactionStatus(transaction, PaymentStatus.INVALIDATED);
             }
             transactionLogService.save(transactionLog);
+            sendTheTransactionNotification(transaction, PaymentStatus.INVALIDATED);
             return new PaymentResponse(PaymentStatus.CANCELED, "Nonexistent bank account!" + message);
         }
         transactionLog.setBankAccount(bankAccountUser.getBankAccount());
@@ -118,14 +132,13 @@ public class RestTransactionController {
             bankAccountService.save(merchant.getBankAccount());
             updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.PAID.toString(), paymentResponse.getMessage()), transaction.getReceiptId());
         } else if (attempts > 4) {
-            transaction.setPaymentStatus(PaymentStatus.INVALIDATED);
+            System.out.println("ovdje");
+            transaction = updateTransactionStatus(transaction, PaymentStatus.INVALIDATED);
             updateTheMainServer(new TransacationSuccessRequest(paymentResponse.getPaymentStatus().toString(), paymentResponse.getMessage()), transaction.getReceiptId());
-            paymentResponse.setMessage(paymentResponse.getMessage() + attemptsMessage);
+            paymentResponse.setMessage(paymentResponse.getMessage() + MessageConstants.ATTEMPTS);
 
         }
-        transactionService.save(transaction);
-        transactionLog.setPaymentStatus(paymentResponse.getPaymentStatus());
-        transactionLogService.save(transactionLog);
+        handleResult(transaction,transactionLog,paymentResponse,bankAccountUser);
         return paymentResponse;
     }
 
@@ -138,6 +151,8 @@ public class RestTransactionController {
         if (merchant == null) {
             updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(),
                     "Business not registered for this service"), dynamicQRRequest.getReceiptId());
+            throw new ResourceNotFoundException("Business not registered for this service");
+
         }
 
         ApplicationUser applicationUser = new ApplicationUser();
@@ -151,7 +166,7 @@ public class RestTransactionController {
         } else {
             PaymentResponse paymentResponse = processTheTransactionExpiration(transaction);
             attempts += transactionLogService.getNumberOfAttempts(transaction.getId());
-            if (transaction.getBankAccount() != null || transaction.getPaymentStatus() != PaymentStatus.PENDING) {
+            if (transaction.getBankAccount() != null || transaction.getPaymentStatus() != PaymentStatus.PENDING || attempts>5) {
                 return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
             }
             if (paymentResponse != null) return paymentResponse;
@@ -162,9 +177,10 @@ public class RestTransactionController {
         if (bankAccountUser == null) {
             transactionLogService.save(transactionLog);
             if (attempts > 4) {
-                message = attemptsMessage;
+                message = MessageConstants.ATTEMPTS;
                 updateTransactionStatus(transaction, PaymentStatus.INVALIDATED);
             }
+            sendTheTransactionNotification(transaction, PaymentStatus.INVALIDATED);
             return new PaymentResponse(PaymentStatus.CANCELED, "Nonexistent bank account!" + message);
         }
         transactionLog.setBankAccount(bankAccountUser.getBankAccount());
@@ -178,14 +194,11 @@ public class RestTransactionController {
             bankAccountService.save(merchant.getBankAccount());
             updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.PAID.toString(), paymentResponse.getMessage()), transaction.getReceiptId());
         } else if (attempts > 4) {
-            transaction.setPaymentStatus(PaymentStatus.INVALIDATED);
+            transaction = updateTransactionStatus(transaction, PaymentStatus.INVALIDATED);
             updateTheMainServer(new TransacationSuccessRequest(paymentResponse.getPaymentStatus().toString(), paymentResponse.getMessage()), transaction.getReceiptId());
-            paymentResponse.setMessage(paymentResponse.getMessage() + attemptsMessage);
-
+            paymentResponse.setMessage(paymentResponse.getMessage() + MessageConstants.ATTEMPTS);
         }
-        transactionService.save(transaction);
-        transactionLog.setPaymentStatus(paymentResponse.getPaymentStatus());
-        transactionLogService.save(transactionLog);
+        handleResult(transaction,transactionLog,paymentResponse,bankAccountUser);
         return paymentResponse;
     }
 
@@ -224,6 +237,7 @@ public class RestTransactionController {
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
         }
         if (transaction.getPaymentStatus() != PaymentStatus.PENDING) {
+            sendTheTransactionNotification(transaction, PaymentStatus.INVALIDATED);
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
 
@@ -233,6 +247,7 @@ public class RestTransactionController {
         updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Customer decided not to proceed with payment"), transaction.getReceiptId());
         updateTransactionStatus(transaction, PaymentStatus.CANCELED);
         transactionLogService.save(new TransactionLog(transaction, PaymentStatus.CANCELED));
+        sendTheTransactionNotification(transaction, PaymentStatus.CANCELED);
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
     }
 
@@ -251,19 +266,21 @@ public class RestTransactionController {
         ApplicationUser applicationUser = new ApplicationUser();
         applicationUser.setId(userPrincipal.getId());
         if (transaction == null) {
-            transaction = new Transaction(merchant, applicationUser, notPayQRRequestDynamic.getTotalPrice(),
-                    notPayQRRequestDynamic.getService(), notPayQRRequestDynamic.getReceiptId(), PaymentStatus.CANCELED);
-            transaction = transactionService.save(transaction);
-
+            transaction = transactionService.save(new Transaction(merchant, applicationUser, notPayQRRequestDynamic.getTotalPrice(),
+                    notPayQRRequestDynamic.getService(), notPayQRRequestDynamic.getReceiptId(), PaymentStatus.CANCELED));
         } else if (transaction.getPaymentStatus() != PaymentStatus.PENDING) {
+            sendTheTransactionNotification(transaction, PaymentStatus.INVALIDATED);
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
         }
-        if (processTheTransactionExpiration(transaction) != null)
+        if (processTheTransactionExpiration(transaction) != null) {
+            sendTheTransactionNotification(transaction, PaymentStatus.INVALIDATED);
             return new PaymentResponse(PaymentStatus.CANCELED, "Transaction closed!");
+        }
 
         updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Customer decided not to proceed with payment"), transaction.getReceiptId());
         updateTransactionStatus(transaction, PaymentStatus.CANCELED);
         transactionLogService.save(new TransactionLog(transaction, PaymentStatus.CANCELED));
+        sendTheTransactionNotification(transaction, PaymentStatus.CANCELED);
         return new PaymentResponse(PaymentStatus.CANCELED, "Successfully canceled the payment!");
     }
 
@@ -289,8 +306,67 @@ public class RestTransactionController {
         }
     }
 
-    private void updateTransactionStatus(Transaction transaction, PaymentStatus paymentStatus) {
+    private Transaction updateTransactionStatus(Transaction transaction, PaymentStatus paymentStatus) {
         transaction.setPaymentStatus(paymentStatus);
+        return transactionService.save(transaction);
+    }
+
+    private void checkAmountOfTransactionAndSendNotification(Transaction transaction){
+        if (transaction.getTotalPrice() > MessageConstants.HUGE_TRANSACTION_LIMIT){
+            Notification notification = notificationService
+                    .save(new Notification(NotificationStatus.WARNING, NotificationType.TRANSACTION, transaction.getId().toString(),MessageConstants.HUGE_TRANSACTION_MSG + MessageConstants.HUGE_TRANSACTION_LIMIT, transaction.getApplicationUser() ));
+            notificationHandler.sendNotification(notification);
+        }
+    }
+
+    private void sendTheTransactionNotification(Transaction transaction,@NotNull PaymentStatus paymentStatus){
+        NotificationStatus notificationStatus = NotificationStatus.ERROR;
+        String message = MessageConstants.FAIL_TRANSACTION;
+        if(paymentStatus.equals(PaymentStatus.PAID)){
+                notificationStatus = NotificationStatus.INFO;
+                message = MessageConstants.SUCCESSFULL_TRANSACTION;
+        }
+        else if(paymentStatus.equals(PaymentStatus.INSUFFICIENT_FUNDS)){
+            message = MessageConstants.FAIL_TRANSACTION_FUNDS;
+        }
+        else if(paymentStatus.equals(PaymentStatus.CANCELED)){
+            message = MessageConstants.CANCEL_TRANSACTION;
+        }
+        Notification notification = notificationService
+                .save(new Notification(notificationStatus, NotificationType.TRANSACTION, transaction.getId().toString(),message, transaction.getApplicationUser() ));
+        notificationHandler.sendNotification(notification);
+    }
+
+    private void checkBalanceAndInform(@NotNull BankAccountUser bankAccountUser){
+        if(bankAccountUser.getBankAccount().getBalance() < MessageConstants.WARN_BALANCE){
+            Notification notification = notificationService.save(new Notification(NotificationStatus.WARNING,
+                    NotificationType.ACCOUNT_BALANCE, bankAccountUser.getId().toString(),
+                    MessageConstants.ACCOUNT_BALANCE, bankAccountUser.getApplicationUser()));
+            notificationHandler.sendNotification(notification);
+        }
+        checkMonthlyLimitAndInform(bankAccountUser);
+    }
+
+    private void checkMonthlyLimitAndInform (@NotNull BankAccountUser bankAccountUser){
+        BankAccountLimitResponse bankAccountLimitResponse = transactionService.checkMonthlyExpenses(bankAccountUser,
+                MessageConstants.MONTH_TRANSACTION_LIMIT);
+        if (bankAccountLimitResponse.getAboveLimit()){
+            Notification notification = notificationService.save(new Notification(NotificationStatus.WARNING,
+                    NotificationType.ACCOUNT_BALANCE, bankAccountUser.getId().toString(),
+                    MessageConstants.MONTHLY_LIMIT, bankAccountUser.getApplicationUser()));
+            notificationHandler.sendNotification(notification);
+        }
+    }
+
+    private void handleResult(Transaction transaction, TransactionLog transactionLog, PaymentResponse paymentResponse,
+                              BankAccountUser bankAccountUser){
         transactionService.save(transaction);
+        transactionLog.setPaymentStatus(paymentResponse.getPaymentStatus());
+        transactionLogService.save(transactionLog);
+        sendTheTransactionNotification(transaction, paymentResponse.getPaymentStatus());
+        if(paymentResponse.getPaymentStatus().equals(PaymentStatus.PAID)){
+            checkBalanceAndInform(bankAccountUser);
+            checkAmountOfTransactionAndSendNotification(transaction);
+        }
     }
 }

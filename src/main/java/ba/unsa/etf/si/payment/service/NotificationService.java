@@ -39,6 +39,8 @@ public class NotificationService {
         if(notification==null){
             throw new ResourceNotFoundException("Wrong notificationId");
         }
+        notification.setRead(true);
+        notificationRepository.save(notification);
         return notificationHandler.buildNotificationResponse(notification);
     }
 }

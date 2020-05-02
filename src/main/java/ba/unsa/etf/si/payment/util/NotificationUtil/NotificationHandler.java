@@ -18,7 +18,7 @@ public class NotificationHandler {
     public NotificationResponse buildNotificationResponse(Notification notification){
         return new NotificationResponse(notification.getId(),
                 notification.getSubjectId(), notification.getNotificationMessage(),
-                notification.getNotificationStatus(), notification.getNotificationType(), notification.getCreatedAt());
+                notification.getNotificationStatus(), notification.getNotificationType(), notification.getCreatedAt(), notification.getRead());
     }
 
     public void sendNotification (Notification notification){
