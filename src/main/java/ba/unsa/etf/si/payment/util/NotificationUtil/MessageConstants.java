@@ -9,7 +9,7 @@ public class MessageConstants {
     public static String FAIL_TRANSFER_FUNDS = "Could not proceed with transfer due to insufficient funds!!";
     public static String FAIL_TRANSACTION_FUNDS = "Could not proceed with transaction due to insufficient funds!";
     public static String SUCCESSFULL_TRANSACTION = "Successfull transacation!";
-    public static String MONTHLY_LIMIT = "You have exceeded the limit of 1000.0 KM";
+    public static String MONTHLY_LIMIT = "You have exceeded monthly limit of 1000.0 KM";
     public static String HUGE_TRANSACTION_MSG = "You have made a payment above ";
     public static String ACCOUNT_BALANCE = "Your account balance is now below 5 KM!";
     public static String ATTEMPTS = " You have reached the limit od 5 attempts!";

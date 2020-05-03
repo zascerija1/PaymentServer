@@ -157,6 +157,7 @@ public class RestTransactionController {
 
         ApplicationUser applicationUser = new ApplicationUser();
         applicationUser.setId(userPrincipal.getId());
+        applicationUser.setUsername(userPrincipal.getUsername());
         Integer attempts = 1;
         Transaction transaction = transactionService.findByReceiptId(dynamicQRRequest.getReceiptId());
         if (transaction == null) {
@@ -265,6 +266,7 @@ public class RestTransactionController {
 
         ApplicationUser applicationUser = new ApplicationUser();
         applicationUser.setId(userPrincipal.getId());
+        applicationUser.setUsername(userPrincipal.getUsername());
         if (transaction == null) {
             transaction = transactionService.save(new Transaction(merchant, applicationUser, notPayQRRequestDynamic.getTotalPrice(),
                     notPayQRRequestDynamic.getService(), notPayQRRequestDynamic.getReceiptId(), PaymentStatus.CANCELED));
@@ -330,6 +332,7 @@ public class RestTransactionController {
             message = MessageConstants.FAIL_TRANSACTION_FUNDS;
         }
         else if(paymentStatus.equals(PaymentStatus.CANCELED)){
+            notificationStatus = NotificationStatus.INFO;
             message = MessageConstants.CANCEL_TRANSACTION;
         }
         Notification notification = notificationService
