@@ -29,6 +29,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -101,7 +102,7 @@ public class RestTransactionController {
             return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transactionId! Try again");
         int attempts = transactionLogService.getNumberOfAttempts(transaction.getId()) + 1;
         if (transaction.getBankAccount() != null || transaction.getPaymentStatus() != PaymentStatus.PENDING || attempts>5)
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
+            return new PaymentResponse(PaymentStatus.PROBLEM, getMessage(transaction.getPaymentStatus()));
 
 
         PaymentResponse paymentResponseReq = processTheTransactionExpiration(transaction);
@@ -132,7 +133,6 @@ public class RestTransactionController {
             bankAccountService.save(merchant.getBankAccount());
             updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.PAID.toString(), paymentResponse.getMessage()), transaction.getReceiptId());
         } else if (attempts > 4) {
-            System.out.println("ovdje");
             transaction = updateTransactionStatus(transaction, PaymentStatus.INVALIDATED);
             updateTheMainServer(new TransacationSuccessRequest(paymentResponse.getPaymentStatus().toString(), paymentResponse.getMessage()), transaction.getReceiptId());
             paymentResponse.setMessage(paymentResponse.getMessage() + MessageConstants.ATTEMPTS);
@@ -165,11 +165,11 @@ public class RestTransactionController {
                     dynamicQRRequest.getService(), dynamicQRRequest.getReceiptId(), PaymentStatus.PENDING);
             transaction = transactionService.save(transaction);
         } else {
-            PaymentResponse paymentResponse = processTheTransactionExpiration(transaction);
             attempts += transactionLogService.getNumberOfAttempts(transaction.getId());
             if (transaction.getBankAccount() != null || transaction.getPaymentStatus() != PaymentStatus.PENDING || attempts>5) {
-                return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
+                return new PaymentResponse(PaymentStatus.PROBLEM, getMessage(transaction.getPaymentStatus()));
             }
+            PaymentResponse paymentResponse = processTheTransactionExpiration(transaction);
             if (paymentResponse != null) return paymentResponse;
         }
         String message = "";
@@ -186,7 +186,7 @@ public class RestTransactionController {
         }
         transactionLog.setBankAccount(bankAccountUser.getBankAccount());
         PaymentResponse paymentResponse = bankAccountUserService.getPaymentResult(dynamicQRRequest.getBankAccountId(),
-                userPrincipal.getId(), dynamicQRRequest.getTotalPrice());
+                userPrincipal.getId(), transaction.getTotalPrice());
 
         if (paymentResponse.getPaymentStatus().equals(PaymentStatus.PAID)) {
             transaction.setPaymentStatus(PaymentStatus.PAID);
@@ -215,7 +215,7 @@ public class RestTransactionController {
             }
 
             if (transaction.getPaymentStatus() != PaymentStatus.PENDING) {
-                return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
+                return new PaymentResponse(PaymentStatus.PROBLEM, getMessage(transaction.getPaymentStatus()));
             }
             return bankAccountUserService.checkBalanceForPayment(checkBalanceRequest.getBankAccountId(), userPrincipal.getId(),
                     transaction.getTotalPrice());
@@ -239,7 +239,7 @@ public class RestTransactionController {
         }
         if (transaction.getPaymentStatus() != PaymentStatus.PENDING) {
             sendTheTransactionNotification(transaction, PaymentStatus.INVALIDATED);
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
+            return new PaymentResponse(PaymentStatus.PROBLEM, getMessage(transaction.getPaymentStatus()));
         }
 
         PaymentResponse paymentResponse = processTheTransactionExpiration(transaction);
@@ -272,11 +272,11 @@ public class RestTransactionController {
                     notPayQRRequestDynamic.getService(), notPayQRRequestDynamic.getReceiptId(), PaymentStatus.CANCELED));
         } else if (transaction.getPaymentStatus() != PaymentStatus.PENDING) {
             sendTheTransactionNotification(transaction, PaymentStatus.INVALIDATED);
-            return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction already processed!");
+            return new PaymentResponse(PaymentStatus.PROBLEM, getMessage(transaction.getPaymentStatus()));
         }
         if (processTheTransactionExpiration(transaction) != null) {
             sendTheTransactionNotification(transaction, PaymentStatus.INVALIDATED);
-            return new PaymentResponse(PaymentStatus.CANCELED, "Transaction closed!");
+            return new PaymentResponse(PaymentStatus.CANCELED, getMessage(PaymentStatus.INVALIDATED));
         }
 
         updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Customer decided not to proceed with payment"), transaction.getReceiptId());
@@ -294,7 +294,7 @@ public class RestTransactionController {
         if (diff > 4) {
             updateTransactionStatus(transaction, PaymentStatus.INVALIDATED);
             updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Transaction expired"), transaction.getReceiptId());
-            return new PaymentResponse(PaymentStatus.PROBLEM, "You cannot longer access this transaction! Transaction closes" +
+            return new PaymentResponse(PaymentStatus.INVALIDATED, "You cannot longer access this transaction! Transaction closes" +
                     " after 5 minutes!");
         }
         return null;
@@ -302,7 +302,7 @@ public class RestTransactionController {
 
     private void updateTheMainServer(TransacationSuccessRequest transacationSuccessRequest, String receiptId) {
         try {
-            restService.updateTransactionStatus(transacationSuccessRequest, receiptId);
+            //restService.updateTransactionStatus(transacationSuccessRequest, receiptId);
         } catch (HttpStatusCodeException ex) {
             throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
         }
@@ -313,10 +313,10 @@ public class RestTransactionController {
         return transactionService.save(transaction);
     }
 
-    private void checkAmountOfTransactionAndSendNotification(Transaction transaction){
-        if (transaction.getTotalPrice() > MessageConstants.HUGE_TRANSACTION_LIMIT){
+    private void checkAmountOfTransactionAndSendNotification(Transaction transaction, BankAccountUser bankAccountUser){
+        if (transaction.getTotalPrice() > bankAccountUser.getTransactionAmountLimit()){
             Notification notification = notificationService
-                    .save(new Notification(NotificationStatus.WARNING, NotificationType.TRANSACTION, transaction.getId().toString(),MessageConstants.HUGE_TRANSACTION_MSG + MessageConstants.HUGE_TRANSACTION_LIMIT, transaction.getApplicationUser() ));
+                    .save(new Notification(NotificationStatus.WARNING, NotificationType.TRANSACTION, transaction.getId().toString(),MessageConstants.HUGE_TRANSACTION_MSG + bankAccountUser.getTransactionAmountLimit()+"!", transaction.getApplicationUser() ));
             notificationHandler.sendNotification(notification);
         }
     }
@@ -341,10 +341,10 @@ public class RestTransactionController {
     }
 
     private void checkBalanceAndInform(@NotNull BankAccountUser bankAccountUser){
-        if(bankAccountUser.getBankAccount().getBalance() < MessageConstants.WARN_BALANCE){
+        if(bankAccountUser.getBankAccount().getBalance() < bankAccountUser.getBalanceLowerLimit()){
             Notification notification = notificationService.save(new Notification(NotificationStatus.WARNING,
                     NotificationType.ACCOUNT_BALANCE, bankAccountUser.getId().toString(),
-                    MessageConstants.ACCOUNT_BALANCE, bankAccountUser.getApplicationUser()));
+                    MessageConstants.ACCOUNT_BALANCE+bankAccountUser.getBalanceLowerLimit()+ "!" , bankAccountUser.getApplicationUser()));
             notificationHandler.sendNotification(notification);
         }
         checkMonthlyLimitAndInform(bankAccountUser);
@@ -352,11 +352,11 @@ public class RestTransactionController {
 
     private void checkMonthlyLimitAndInform (@NotNull BankAccountUser bankAccountUser){
         BankAccountLimitResponse bankAccountLimitResponse = transactionService.checkMonthlyExpenses(bankAccountUser,
-                MessageConstants.MONTH_TRANSACTION_LIMIT);
+                bankAccountUser.getMonthlyLimit());
         if (bankAccountLimitResponse.getAboveLimit()){
             Notification notification = notificationService.save(new Notification(NotificationStatus.WARNING,
                     NotificationType.ACCOUNT_BALANCE, bankAccountUser.getId().toString(),
-                    MessageConstants.MONTHLY_LIMIT, bankAccountUser.getApplicationUser()));
+                    MessageConstants.MONTHLY_LIMIT+ bankAccountUser.getMonthlyLimit()+"!", bankAccountUser.getApplicationUser()));
             notificationHandler.sendNotification(notification);
         }
     }
@@ -369,7 +369,18 @@ public class RestTransactionController {
         sendTheTransactionNotification(transaction, paymentResponse.getPaymentStatus());
         if(paymentResponse.getPaymentStatus().equals(PaymentStatus.PAID)){
             checkBalanceAndInform(bankAccountUser);
-            checkAmountOfTransactionAndSendNotification(transaction);
+            checkAmountOfTransactionAndSendNotification(transaction, bankAccountUser);
         }
+    }
+
+    private String getMessage(PaymentStatus paymentStatus){
+        HashMap<PaymentStatus, String> messages=new HashMap<>();
+        messages.put(PaymentStatus.CANCELED, "Transaction already canceled!");
+        messages.put(PaymentStatus.PAID, "Transaction already paid!");
+        messages.put(PaymentStatus.INVALIDATED, "Transaction is invalidated due to problems encountered!" +
+                " Therefore you cannot longer access it!");
+        messages.put(PaymentStatus.PENDING, "You have reached the maximum of 5 attempts! " +
+                "Therefore you cannot longer access transaction!");
+        return messages.get(paymentStatus);
     }
 }

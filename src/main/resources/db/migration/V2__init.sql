@@ -99,14 +99,17 @@ create table if not exists public.bank_accounts
 
 create table if not exists public.bank_account_users
 (
-    id                  bigint not null
+    id                       bigint           not null
         constraint bank_account_users_pkey
             primary key,
-    application_user_id bigint not null
+    balance_lower_limit      double precision not null,
+    monthly_limit            double precision not null,
+    transaction_amount_limit double precision not null,
+    application_user_id      bigint           not null
         constraint fkjvnkuxpowqf9445fnwobvub83
             references application_users
             on delete cascade,
-    bank_account_id     bigint not null
+    bank_account_id          bigint           not null
         constraint uk_emykmc2ulup7oy6tje2l4u1vx
             unique
         constraint fk74pijj9nly4jh4lu9pauqjwmy
@@ -384,10 +387,9 @@ INSERT INTO public.application_users(id, created_at, updated_at, email, first_na
 
 INSERT INTO public.user_roles (user_id, role_id) values (1,2) on conflict on constraint user_roles_pkey do nothing;
 
-INSERT INTO public.bank_account_users (id, application_user_id, bank_account_id) VALUES (1,1,6) on conflict on constraint  bank_account_users_pkey do nothing;
-INSERT INTO public.bank_account_users (id, application_user_id, bank_account_id) VALUES (2,1,7) on conflict on constraint  bank_account_users_pkey do nothing;
-INSERT INTO public.bank_account_users (id, application_user_id, bank_account_id) VALUES (3,1,2) on conflict on constraint  bank_account_users_pkey do nothing;
-
+INSERT INTO public.bank_account_users (id, balance_lower_limit, monthly_limit, transaction_amount_limit, application_user_id, bank_account_id) VALUES (1,5.0, 1000.0, 500.0, 1,6) on conflict on constraint  bank_account_users_pkey do nothing;
+INSERT INTO public.bank_account_users (id, balance_lower_limit, monthly_limit, transaction_amount_limit, application_user_id, bank_account_id) VALUES (2,5.0, 1000.0, 500.0, 1,7) on conflict on constraint  bank_account_users_pkey do nothing;
+INSERT INTO public.bank_account_users (id, balance_lower_limit, monthly_limit, transaction_amount_limit, application_user_id, bank_account_id) VALUES (3,5.0, 1000.0, 500.0, 1,2) on conflict on constraint  bank_account_users_pkey do nothing;
 
 
 INSERT INTO public.transactions (id, created_at, updated_at, payment_status, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
