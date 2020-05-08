@@ -14,15 +14,24 @@ public class BankAccountDataResponse {
 
     private String cardNumber;
 
+    private Double monthlyLimit;
+
+    private Double balanceLowerLimit;
+
+    private Double transactionAmountLimit;
+
     public BankAccountDataResponse() {
     }
 
-    public BankAccountDataResponse(Long id, String accountOwner, String bankName, Date expiryDate, String cardNumber) {
+    public BankAccountDataResponse(Long id, String accountOwner, String bankName, Date expiryDate, String cardNumber, Double monthlyLimit, Double balanceLowerLimit, Double transactionAmountLimit) {
         this.id = id;
         this.accountOwner = accountOwner;
         this.bankName = bankName;
         this.expiryDate = expiryDate;
         this.cardNumber = cardNumber;
+        this.monthlyLimit = monthlyLimit;
+        this.balanceLowerLimit = balanceLowerLimit;
+        this.transactionAmountLimit = transactionAmountLimit;
     }
 
     public String getAccountOwner() {
@@ -63,5 +72,25 @@ public class BankAccountDataResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Double getMonthlyLimit() {
+        return monthlyLimit;
+    }
+
+    public Double getBalanceLowerLimit() {
+        return balanceLowerLimit;
+    }
+
+    public void setBalanceLowerLimit(Double balanceLowerLimit) {
+        this.balanceLowerLimit = balanceLowerLimit;
+    }
+
+    public Double getTransactionAmountLimit() {
+        return transactionAmountLimit;
+    }
+
+    public void setTransactionAmountLimit(Double transactionAmountLimit) {
+        this.transactionAmountLimit = transactionAmountLimit;
     }
 }

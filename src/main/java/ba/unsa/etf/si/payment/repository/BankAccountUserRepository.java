@@ -12,7 +12,7 @@ public interface BankAccountUserRepository extends JpaRepository<BankAccountUser
     List<BankAccountUser> findAllByApplicationUser_Id(Long id);
     Boolean existsByIdAndApplicationUser_Id(Long id, Long applicationUser_id);
     List<BankAccountUser> findAllByBankAccount_CardNumber(String cardNumber);
-    BankAccountUser findByIdAndAndApplicationUser_Id(Long bankAccountUserId, Long applicationUserId);
+    BankAccountUser findByIdAndApplicationUser_Id(Long bankAccountUserId, Long applicationUserId);
     BankAccountUser findBankAccountUserById(Long id);
 
 }
