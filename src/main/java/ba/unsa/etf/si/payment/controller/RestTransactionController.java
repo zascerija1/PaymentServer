@@ -302,7 +302,7 @@ public class RestTransactionController {
 
     private void updateTheMainServer(TransacationSuccessRequest transacationSuccessRequest, String receiptId) {
         try {
-            //restService.updateTransactionStatus(transacationSuccessRequest, receiptId);
+            restService.updateTransactionStatus(transacationSuccessRequest, receiptId);
         } catch (HttpStatusCodeException ex) {
             throw new ResourceNotFoundException("Receipt data could not be loaded from main server!");
         }
