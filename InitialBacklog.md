@@ -271,7 +271,7 @@
 
 ## Item
 
-> Users of Pay Mobile App should be able to track their funds transfer all the time with all the details
+> Users of Pay Mobile App should be able to track their transfer funds all the time with all the details
 
 ### Task
 
