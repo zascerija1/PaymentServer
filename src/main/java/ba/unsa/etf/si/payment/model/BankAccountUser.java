@@ -1,5 +1,7 @@
 package ba.unsa.etf.si.payment.model;
 
+import ba.unsa.etf.si.payment.request.BankAccountConfigRequest;
+import ba.unsa.etf.si.payment.util.NotificationUtil.MessageConstants;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -27,6 +29,15 @@ public class BankAccountUser {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ApplicationUser applicationUser;
 
+    @Column(nullable = false)
+    private Double monthlyLimit = MessageConstants.MONTH_TRANSACTION_LIMIT;
+
+    @Column(nullable = false)
+    private Double balanceLowerLimit = MessageConstants.WARN_BALANCE;
+
+    @Column(nullable = false)
+    private Double transactionAmountLimit = MessageConstants.HUGE_TRANSACTION_LIMIT;
+
     public BankAccountUser() {
     }
 
@@ -52,5 +63,35 @@ public class BankAccountUser {
 
     public void setApplicationUser(ApplicationUser applicationUser) {
         this.applicationUser = applicationUser;
+    }
+
+    public Double getMonthlyLimit() {
+        return monthlyLimit;
+    }
+
+    public void setMonthlyLimit(Double monthlyLimit) {
+        this.monthlyLimit = monthlyLimit;
+    }
+
+    public Double getBalanceLowerLimit() {
+        return balanceLowerLimit;
+    }
+
+    public void setBalanceLowerLimit(Double balanceLowerLimit) {
+        this.balanceLowerLimit = balanceLowerLimit;
+    }
+
+    public Double getTransactionAmountLimit() {
+        return transactionAmountLimit;
+    }
+
+    public void setTransactionAmountLimit(Double transactionAmountLimit) {
+        this.transactionAmountLimit = transactionAmountLimit;
+    }
+
+    public void setConfig(BankAccountConfigRequest bankAccountConfigRequest){
+        this.monthlyLimit = bankAccountConfigRequest.getMonthlyLimit();
+        this.balanceLowerLimit = bankAccountConfigRequest.getBalanceLowerLimit();
+        this.transactionAmountLimit = bankAccountConfigRequest.getTransactionAmountLimit();
     }
 }

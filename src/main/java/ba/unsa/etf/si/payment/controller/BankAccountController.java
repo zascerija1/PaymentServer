@@ -5,7 +5,9 @@ import ba.unsa.etf.si.payment.exception.ResourceNotFoundException;
 import ba.unsa.etf.si.payment.model.ApplicationUser;
 import ba.unsa.etf.si.payment.model.BankAccount;
 import ba.unsa.etf.si.payment.model.BankAccountUser;
+import ba.unsa.etf.si.payment.request.BankAccountConfigRequest;
 import ba.unsa.etf.si.payment.request.BankAccountRequest;
+import ba.unsa.etf.si.payment.response.ApiResponse;
 import ba.unsa.etf.si.payment.response.BankAccManageResponse;
 import ba.unsa.etf.si.payment.response.BankAccountDataResponse;
 import ba.unsa.etf.si.payment.security.CurrentUser;
@@ -13,7 +15,9 @@ import ba.unsa.etf.si.payment.security.UserPrincipal;
 import ba.unsa.etf.si.payment.service.ApplicationUserService;
 import ba.unsa.etf.si.payment.service.BankAccountService;
 import ba.unsa.etf.si.payment.service.BankAccountUserService;
+import ba.unsa.etf.si.payment.util.RequestValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
@@ -81,6 +85,15 @@ public class BankAccountController {
         }
         bankAccountUserService.delete(accountId);
         return new BankAccManageResponse(true, "Successful deletion!");
+    }
+
+    @PostMapping("/update/{bankAccountId}")
+    public ApiResponse updateBankAccount(@PathVariable Long bankAccountId,
+                                         @Valid @RequestBody BankAccountConfigRequest bankAccountConfigRequest,
+                                         @CurrentUser UserPrincipal currentUser,
+                                         BindingResult bindingResult){
+        RequestValidator.validateRequest(bindingResult);
+        return bankAccountUserService.updateAccountConfig(bankAccountId, currentUser.getId(), bankAccountConfigRequest);
     }
 
 

@@ -132,6 +132,6 @@ public class TransactionController {
         if (bankAccountUser==null){
             throw new ResourceNotFoundException("Bank Account does not belong to current user!");
         }
-        return transactionService.checkMonthlyExpenses(bankAccountUser, MessageConstants.MONTH_TRANSACTION_LIMIT);
+        return transactionService.checkMonthlyExpenses(bankAccountUser, bankAccountUser.getMonthlyLimit());
     }
 }
