@@ -50,6 +50,16 @@ public class BankAccount extends AuditModel {
     @Column(name = "balance", nullable = false)
     private Double balance;
 
+    public BankAccount() {
+    }
+
+    public BankAccount(String accountOwner, String cvc, String cardNumber, Double balance){
+        this.accountOwner = accountOwner;
+        this.cvc = cvc;
+        this.cardNumber = cardNumber;
+        this.balance = balance;
+    }
+
     public Long getId() {
         return id;
     }
