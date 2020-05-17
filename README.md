@@ -36,6 +36,13 @@ Second step is to install newman:
 npm install -g newman
 ```
 
+Final step is to run tests script:
+
+```
+newman run ApiTests.postman_collection.json
+```
+
+
 ## Contributing to Payment server
 
 To contribute to Payment server, follow these steps:
