@@ -211,7 +211,7 @@ public class RestTransactionController {
         if (checkBalanceRequest.getTransactionId() != null) {
             Transaction transaction = transactionService.findByIdAndApplicationUser_Id(checkBalanceRequest.getTransactionId(), userPrincipal.getId());
             if (transaction == null) {
-                return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again");
+                return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Wrong transaction id! Try again!");
             }
 
             if (transaction.getPaymentStatus() != PaymentStatus.PENDING) {
@@ -219,12 +219,12 @@ public class RestTransactionController {
             }
             return bankAccountUserService.checkBalanceForPayment(checkBalanceRequest.getBankAccountId(), userPrincipal.getId(),
                     transaction.getTotalPrice());
-        } else if (checkBalanceRequest.getTotalPrice() != null) {
+        } else if (checkBalanceRequest.getTotalPrice() != null && checkBalanceRequest.getTotalPrice() > 0) {
             return bankAccountUserService.checkBalanceForPayment(checkBalanceRequest.getBankAccountId(), userPrincipal.getId(),
                     checkBalanceRequest.getTotalPrice());
         }
-        return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction id or total price" +
-                " missing! Please provide one! Try again !");
+        return new PaymentResponse(PaymentStatus.PROBLEM, "Problem occured! Transaction id or proper total price" +
+                " missing! Please provide one! Try again!");
     }
 
     //Ipak cemo sa odvojenim rutama
@@ -245,7 +245,7 @@ public class RestTransactionController {
         PaymentResponse paymentResponse = processTheTransactionExpiration(transaction);
         if (paymentResponse != null) return paymentResponse;
 
-        updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Customer decided not to proceed with payment"), transaction.getReceiptId());
+        updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Customer decided not to proceed with payment!"), transaction.getReceiptId());
         updateTransactionStatus(transaction, PaymentStatus.CANCELED);
         transactionLogService.save(new TransactionLog(transaction, PaymentStatus.CANCELED));
         sendTheTransactionNotification(transaction, PaymentStatus.CANCELED);
@@ -279,7 +279,7 @@ public class RestTransactionController {
             return new PaymentResponse(PaymentStatus.CANCELED, getMessage(PaymentStatus.INVALIDATED));
         }
 
-        updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Customer decided not to proceed with payment"), transaction.getReceiptId());
+        updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Customer decided not to proceed with payment!"), transaction.getReceiptId());
         updateTransactionStatus(transaction, PaymentStatus.CANCELED);
         transactionLogService.save(new TransactionLog(transaction, PaymentStatus.CANCELED));
         sendTheTransactionNotification(transaction, PaymentStatus.CANCELED);
@@ -293,7 +293,7 @@ public class RestTransactionController {
         long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
         if (diff > 4) {
             updateTransactionStatus(transaction, PaymentStatus.INVALIDATED);
-            updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Transaction expired"), transaction.getReceiptId());
+            updateTheMainServer(new TransacationSuccessRequest(PaymentStatus.CANCELED.toString(), "Transaction expired!"), transaction.getReceiptId());
             return new PaymentResponse(PaymentStatus.INVALIDATED, "You cannot longer access this transaction! Transaction closes" +
                     " after 5 minutes!");
         }

@@ -17,12 +17,10 @@ import java.util.stream.Collectors;
 public class BankAccountUserService {
 
     private final BankAccountUserRepository bankAccountUserRepository;
-    private final TransactionService transactionService;
 
 
-    public BankAccountUserService(BankAccountUserRepository bankAccountUserRepository, TransactionService transactionService) {
+    public BankAccountUserService(BankAccountUserRepository bankAccountUserRepository) {
         this.bankAccountUserRepository = bankAccountUserRepository;
-        this.transactionService = transactionService;
     }
 
     public BankAccountUser save(BankAccountUser bankAccountUser) {

@@ -6,10 +6,14 @@
 
 ## Prerequisites
 
-* IntelliJ IDEA Ultimate installed
-* postgreSQL installed
+To run a project: 
+* [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) installed
+* [PostgreSQL](https://www.postgresql.org/download/) installed
 * Java installed (minimum 8, optimal 13)
-* Postman installed
+* [Postman](https://www.postman.com/downloads/) installed
+
+To run API tests:
+* [Node.js](https://nodejs.org/en/download/)
 
 ## Running PaymentServer
 
@@ -17,6 +21,27 @@
 2. Open Postman
 3. Create a request with a rute you'd like to test and send it
 4. Postman will show you a response
+
+## Running API test
+
+First step is to install npm:
+
+```
+npm install npm -g
+```
+
+Second step is to install newman:
+
+```
+npm install -g newman
+```
+
+Final step is to run tests script:
+
+```
+newman run ApiTests.postman_collection.json
+```
+
 
 ## Contributing to Payment server
 
