@@ -129,7 +129,6 @@ public class TransactionService {
 
     public BankAccountLimitResponse checkMonthlyExpenses(BankAccountUser bankAccountUser, Double limit){
 
-
         List<TransactionDataResponse> transactionDataResponseList =
                 findAllTransactionsByUserAccountAndMonth(bankAccountUser.getApplicationUser().getId(),bankAccountUser.getBankAccount().getId());
         double sum = transactionDataResponseList.stream()
