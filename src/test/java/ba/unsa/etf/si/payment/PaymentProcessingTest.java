@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 public class PaymentProcessingTest {
 
     @TestConfiguration
-    class EmployeeServiceImplTestContextConfiguration {
+    class PaymentServiceImplTestContextConfiguration {
 
         @Bean
         public BankAccountUserService employeeService() {
@@ -84,6 +84,7 @@ public class PaymentProcessingTest {
                 .equals("This account does not belong to this user!");
     }
 
+    /*
     @Test
     public void testIntendedToFail() {
 
@@ -93,6 +94,7 @@ public class PaymentProcessingTest {
         assert (paymentResponse.getMessage())
                 .equals("This account does not belong to this user!");
     }
+     */
 }
 
 
