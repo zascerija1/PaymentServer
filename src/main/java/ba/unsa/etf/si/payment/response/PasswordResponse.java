@@ -9,6 +9,7 @@ public class PasswordResponse {
         this.password = password;
     }
 
+    //add comment
     public Boolean getSuccess() {
         return success;
     }
