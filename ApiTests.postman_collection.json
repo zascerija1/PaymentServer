@@ -1,0 +1,850 @@
+{
+	"info": {
+		"_postman_id": "4eb93b94-5887-4874-aa7d-d7fb948c2d4f",
+		"name": "ApiTests",
+		"description": "API testing with Postman",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "SignUp",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d3dc2c6e-22c6-4ddc-9a84-b95f977b724d",
+						"exec": [
+							"pm.test(\"success status\", () => pm.response.to.be.success);\r",
+							"pm.test(\"registration success\", () => \r",
+							"  pm.expect(pm.response.json().success).to.equal(true));\r",
+							"pm.test(\"registration outcome message\", () => \r",
+							"  pm.expect(pm.response.json().message).to.equal(\"User registered successfully\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"Test\",\n\t\"lastName\" : \"Test\",\n\t\"email\":\"test@gmail.com\",\n\t\"username\":\"test123\",\n\t\"password\":\"test123\",\n\t\"answer\":{\n\t\t\"text\":\"This is answer to security question\"\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/auth/signup/6",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"signup",
+						"6"
+					]
+				},
+				"description": "Checking registration functionality"
+			},
+			"response": []
+		},
+		{
+			"name": "LoginTest",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d86feb15-00a1-45e8-a33f-a21e6ecb6b3c",
+						"exec": [
+							"pm.test(\"success status\", () => pm.response.to.be.success);",
+							"pm.test(\"login outcome message\", () => ",
+							"  pm.expect(pm.response.json().tokenType).to.equal(\"Bearer\"));",
+							"pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"password\": \"test123\",\r\n  \"usernameOrEmail\": \"test123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/auth/signin",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UserProfile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "04f66cce-698b-41e9-b5b0-ef7c5124f958",
+						"exec": [
+							"pm.test(\"success status\", () => pm.response.to.be.success);\r",
+							"pm.test(\"email\", () => \r",
+							"  pm.expect(pm.response.json().email).to.equal(\"test@gmail.com\"));\r",
+							"pm.test(\"firstName\", () => \r",
+							"  pm.expect(pm.response.json().firstName).to.equal(\"Test\"));\r",
+							"pm.test(\"lastName\", () => \r",
+							"  pm.expect(pm.response.json().lastName).to.equal(\"Test\"));\r",
+							"pm.test(\"username\", () => \r",
+							"  pm.expect(pm.response.json().username).to.equal(\"test123\"));\r",
+							"  "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dn}}/api/auth/user/me",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"user",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BankAccountAddSuccess",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1ec91674-9973-45ec-be3c-3a9d7b25b027",
+						"exec": [
+							"\r",
+							"pm.test(\"success status\", () => pm.response.to.be.success);\r",
+							"pm.test(\"success\", () => \r",
+							"  pm.expect(pm.response.json().success).to.equal(true));\r",
+							"pm.test(\"text\", () => \r",
+							"  pm.expect(pm.response.json().text).to.equal(\"Succefully added account\"));\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accountOwner\": \"Test Test\",\r\n  \"bankName\": \"UniCredit Bank\",\r\n  \"cardNumber\": \"1111111111111133\",\r\n  \"cvc\": \"133\",\r\n  \"expiryDate\": \"20.07.2021\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/accounts/add",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"add"
+					]
+				},
+				"description": "Testing adding bank account functionality"
+			},
+			"response": []
+		},
+		{
+			"name": "BankAccountAddSuccess2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3cadac5a-d91f-411f-b542-629679a6bc4b",
+						"exec": [
+							"\r",
+							"pm.test(\"success status\", () => pm.response.to.be.success);\r",
+							"pm.test(\"success\", () => \r",
+							"  pm.expect(pm.response.json().success).to.equal(true));\r",
+							"pm.test(\"text\", () => \r",
+							"  pm.expect(pm.response.json().text).to.equal(\"Succefully added account\"));\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accountOwner\": \"Test Test\",\r\n  \"bankName\": \"UniCredit Bank\",\r\n  \"cardNumber\": \"1111111111111132\",\r\n  \"cvc\": \"132\",\r\n  \"expiryDate\": \"20.07.2021\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/accounts/add",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"add"
+					]
+				},
+				"description": "Testing adding bank account functionality"
+			},
+			"response": []
+		},
+		{
+			"name": "BankAccountAddFail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bcd055d9-2e0d-40cc-b066-1324c3ed52b6",
+						"exec": [
+							"\r",
+							"pm.test(\"success status\", () => pm.response.to.be.success);\r",
+							"pm.test(\"success\", () => \r",
+							"  pm.expect(pm.response.json().success).to.equal(false));\r",
+							"pm.test(\"text\", () => \r",
+							"  pm.expect(pm.response.json().text).to.equal(\"User and account owner do not match\"));\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accountOwner\": \"Test Wrong\",\r\n  \"bankName\": \"UniCredit Bank\",\r\n  \"cardNumber\": \"1111111111111111\",\r\n  \"cvc\": \"111\",\r\n  \"expiryDate\": \"20.07.2021\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/accounts/add",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"add"
+					]
+				},
+				"description": "Testing adding bank account functionality"
+			},
+			"response": []
+		},
+		{
+			"name": "BankAccountAddFail2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1dce3460-41d7-4aff-bd82-3a5e00c879f4",
+						"exec": [
+							"\r",
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"pm.test(\"message\", () => \r",
+							"  pm.expect(pm.response.json().message).to.equal(\"Bank account is not valid!\"));\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accountOwner\": \"Test Test\",\r\n  \"bankName\": \"UniCredit Bank\",\r\n  \"cardNumber\": \"1111111111111134\",\r\n  \"cvc\": \"112\",\r\n  \"expiryDate\": \"20.07.2021\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/accounts/add",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"add"
+					]
+				},
+				"description": "Testing adding bank account functionality"
+			},
+			"response": []
+		},
+		{
+			"name": "BankAccountAddFailWrongFormat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "377b2317-9b75-4b09-8f4f-f31d5e807d82",
+						"exec": [
+							"\r",
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accountOwner\": \"Test Test\",\r\n  \"bankName\": \"UniCredit Bank\",\r\n  \"cardNumber\": \"11111111111\",\r\n  \"cvc\": \"112\",\r\n  \"expiryDate\": \"20.07.2021\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/accounts/add",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"add"
+					]
+				},
+				"description": "Testing adding bank account functionality"
+			},
+			"response": []
+		},
+		{
+			"name": "BankAccountAll",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9cf81f54-f1e0-4c62-86a6-4107d8785444",
+						"exec": [
+							"pm.test(\"success status\", () => pm.response.to.be.success);",
+							"pm.test(\"Bank Accounts array size\", () =>",
+							"  pm.expect(pm.response.json().length).to.equal(2));",
+							"",
+							"let jsData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"bankAcc1\", jsData[0].id);",
+							"pm.collectionVariables.set(\"bankAcc2\", jsData[1].id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dn}}/api/accounts/all",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"all"
+					]
+				},
+				"description": "Testing request to get all accounts"
+			},
+			"response": []
+		},
+		{
+			"name": "MoneyTransferSuccess",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d0cde3b4-e4be-4c81-8bd3-7fece4a5e0f7",
+						"exec": [
+							"pm.test(\"success status\", () => pm.response.to.be.success);",
+							"pm.test(\"Money transfer status\", () => ",
+							"  pm.expect(pm.response.json().moneyTransferStatus).to.equal(\"OK\"));",
+							"pm.test(\"Money transfer outcome message\", () => ",
+							"  pm.expect(pm.response.json().message).to.equal(\"Successfully transfered funds!\"));",
+							"  ",
+							"let jsData = JSON.parse(responseBody);",
+							"pm.test(\"Payment status\", () => ",
+							"  pm.expect(jsData.transfers[0].paymentStatus).to.equal(\"PAID\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"amount\": 5.00,\r\n  \"destinationBankAccount\": {{bankAcc1}},\r\n  \"sourceBankAccount\": {{bankAcc2}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/accounts/moneyTransfer/innerTransfer",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"moneyTransfer",
+						"innerTransfer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MoneyTransferFail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fe9bf03-fb8d-474f-ac47-403b5b993679",
+						"exec": [
+							"pm.test(\"success status\", () => pm.response.to.be.success);",
+							"pm.test(\"Money transfer status\", () => ",
+							"  pm.expect(pm.response.json().moneyTransferStatus).to.equal(\"CANCELED\"));",
+							"pm.test(\"Money transfer outcome message\", () => ",
+							"  pm.expect(pm.response.json().message).to.equal(\"Not enough funds to proceed with transfer!\"));",
+							"  "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"amount\": 500000.00,\r\n  \"destinationBankAccount\": {{bankAcc1}},\r\n  \"sourceBankAccount\": {{bankAcc2}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/accounts/moneyTransfer/innerTransfer",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"moneyTransfer",
+						"innerTransfer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CheckBalanceFail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f27b0713-5c19-417d-a67d-6b127b801417",
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Payment status\", () =>\r",
+							"  pm.expect(pm.response.json().paymentStatus).to.equal(\"PROBLEM\"));\r",
+							"pm.test(\"Message\", () =>\r",
+							"  pm.expect(pm.response.json().message).to.equal(\"Problem occured! Transaction id or proper total price missing! Please provide one! Try again!\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"bankAccountId\": {{bankAcc1}},\r\n  \"totalPrice\": -2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/payments/checkbalance",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"checkbalance"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CheckBalanceSuccess",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f8f3728e-a93a-44ea-bd16-a259bf1c5353",
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Payment status\", () =>\r",
+							"  pm.expect(pm.response.json().paymentStatus).to.equal(\"SUFFICIENT_FUNDS\"));\r",
+							"pm.test(\"Message\", () =>\r",
+							"  pm.expect(pm.response.json().message).to.equal(\"You have enough funds to pay this receipt!\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"bankAccountId\": {{bankAcc1}},\r\n  \"totalPrice\": 2.00\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dn}}/api/payments/checkbalance",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"checkbalance"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteBankAcc",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0e0219b1-9e94-4cc8-af00-915614254c3d",
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Success\", () =>\r",
+							"  pm.expect(pm.response.json().success).to.equal(true));\r",
+							"pm.test(\"text\", () =>\r",
+							"  pm.expect(pm.response.json().text).to.equal(\"Successful deletion!\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{dn}}/api/accounts/delete/{{bankAcc1}}",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"delete",
+						"{{bankAcc1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BankAccountAllAfterDeletion",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "285fa345-e430-4e06-9d97-81d64734fcf2",
+						"exec": [
+							"pm.test(\"success status\", () => pm.response.to.be.success);",
+							"pm.test(\"Bank Accounts array size\", () =>",
+							"  pm.expect(pm.response.json().length).to.equal(1));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dn}}/api/accounts/all",
+					"host": [
+						"{{dn}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"all"
+					]
+				},
+				"description": "Testing request to get all accounts"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "766a7824-ad9b-4dc5-9c17-d3e01220e698",
+				"type": "text/javascript",
+				"exec": [
+					"pm.collectionVariables.set(\"dn\", 'localhost:8080');"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "3941b1e6-bee2-472e-b176-f191158101ba",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "8b177f17-7578-4a38-abbf-e08e7dc173f9",
+			"key": "dn",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "836a3f64-8a15-48f0-96d2-fb1fbae04163",
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "8a4ffd5c-2b31-41d8-81ef-52f5b8a920d2",
+			"key": "bankAcc1",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "3cdd6a90-b3ac-4c16-9e15-c7df8f29461e",
+			"key": "bankAcc2",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
