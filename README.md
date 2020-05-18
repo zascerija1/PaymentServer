@@ -19,10 +19,10 @@ To run API tests:
 
 1. Run this project in IntelliJ
 2. Open Postman
-3. Create a request with a rute you'd like to test and send it
+3. Create a request with a rute you would like to test and send it
 4. Postman will show you a response
 
-## Running API test
+## Running API tests
 
 First step is to install npm:
 
@@ -36,7 +36,7 @@ Second step is to install newman:
 npm install -g newman
 ```
 
-Final step is to run tests script:
+Third and final step is to run test script:
 
 ```
 newman run ApiTests.postman_collection.json
