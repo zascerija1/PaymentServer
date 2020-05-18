@@ -230,7 +230,7 @@ VALUES (1, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Dzan Tab
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
 VALUES (2, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Ajsa Hajradinovic',
-        '1111111111111112', '$2a$10$PycFlXZh/yp4Jg6x1OwLUOvTHcs82NBlfHNqvQXy7Lfoe9GzgrqEK', '2023-03-25 14:45:36.674000','50.00',5) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+        '1111111111111112', '$2a$10$PycFlXZh/yp4Jg6x1OwLUOvTHcs82NBlfHNqvQXy7Lfoe9GzgrqEK', '2023-03-25 14:45:36.674000','100.00',1) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
 INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
 VALUES (3, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Amra Dadic',
@@ -363,6 +363,10 @@ INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, car
 VALUES (34, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'Mercator',
         '1111111111111147', '$2a$10$XFAzK/.ZhqF/N5J87zeXz.LPdfZi/zuX7K0T7gJHKDIlS/gYs0XCy', '2023-03-25 14:45:36.674000','4000.00',5) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
 
+INSERT INTO public.bank_accounts (id, created_at, updated_at, account_owner, card_number, cvc, expiry_date, balance, bank_id)
+VALUES (35, '2020-03-25 14:45:36.674000', '2020-03-25 14:45:36.674000', 'BURGER KING',
+        '1111111111111148', '$2a$10$MAoE688pqNo1lZZJ20Ly9.acAtIHpJvaY1J.6Npz6bFLfCFKAJfOq', '2023-03-25 14:45:36.674000','4000.00',2) ON CONFLICT ON CONSTRAINT bank_accounts_pkey DO NOTHING;
+
 INSERT INTO public.merchants (id, merchant_name, bank_account_id) VALUES (1, 'Amko',27) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
 INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (2, 'BINGO',28) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
 INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (3, 'Konzum',29) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
@@ -371,6 +375,7 @@ INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (5, 'Mon
 INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (6, 'Reuff',32) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
 INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (7, 'Chipas',33) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
 INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (8, 'Mercator',34) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
+INSERT INTO public.merchants (id, merchant_name,bank_account_id) VALUES (9, 'BURGER KING',35) ON CONFLICT ON CONSTRAINT merchants_pkey DO NOTHING;
 
 
 /*--------------
@@ -397,7 +402,7 @@ INSERT INTO public.transactions (id, created_at, updated_at, payment_status, rec
 
 
 INSERT INTO public.transactions (id, created_at, updated_at, payment_status, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('36f2e7fe-78d6-11ea-bc55-0242ac130003', '2020-03-17 14:45:36.674000','2020-03-17 14:45:36.674000','PAID','1-1-1-123456782', 'Sendvic losos (1), Choco croissant (1)', 8.5,1,6,4) on conflict  on constraint transactions_pkey do nothing;
+('36f2e7fe-78d6-11ea-bc55-0242ac130003', '2020-03-17 14:45:36.674000','2020-03-17 14:45:36.674000','PAID','1-1-1-123456782', 'Salmon sandwich (1), Choco croissant (1)', 8.5,1,6,4) on conflict  on constraint transactions_pkey do nothing;
 
 INSERT INTO public.transactions (id, created_at, updated_at, payment_status, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
 ('3fc62224-78d6-11ea-bc55-0242ac130003', '2020-03-08 14:45:36.674000','2020-03-08 14:45:36.674000','PAID','1-1-1-123456783', 'Potato pie (1), Pizza (2)', 4.5,1,7,4) on conflict  on constraint transactions_pkey do nothing;
@@ -421,7 +426,7 @@ INSERT INTO public.transactions (id, created_at, updated_at, payment_status, rec
  */
 
 INSERT INTO public.transactions (id, created_at, updated_at, payment_status, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('b64d78fc-798f-11ea-bc55-0242ac130003', '2020-04-03 17:15:36.674000','2020-04-03 14:45:36.674000','PAID','1-1-1-123456788', 'Steak tartare dish (1)', 25.0,1,2,6) on conflict  on constraint transactions_pkey do nothing;
+('b64d78fc-798f-11ea-bc55-0242ac130003', '2020-04-03 17:15:36.674000','2020-04-03 14:45:36.674000','PAID','1-1-1-123456788', 'Tartare dish (1)', 25.0,1,2,6) on conflict  on constraint transactions_pkey do nothing;
 
 INSERT INTO public.transactions (id, created_at, updated_at, payment_status, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
 ('b64d7d66-798f-11ea-bc55-0242ac130003', '2020-04-06 14:45:36.674000','2020-04-03 14:45:36.674000','PAID','1-1-1-123456789', 'Beef Wellington dish (1)', 30.0,1,2,6) on conflict  on constraint transactions_pkey do nothing;
@@ -439,7 +444,7 @@ INSERT INTO public.transactions (id, created_at, updated_at, payment_status, rec
 ('b64d8446-798f-11ea-bc55-0242ac130003', '2020-04-03 18:02:36.674000','2020-04-03 14:45:36.674000','PAID','1-1-1-123456794', 'Puff pastry (3), Raspberry sauce (1), Vanilla sugar (1), Condensed milk (1)', 15.5,1,6,8) on conflict  on constraint transactions_pkey do nothing;
 
 INSERT INTO public.transactions (id, created_at, updated_at, payment_status, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
-('b64d866c-798f-11ea-bc55-0242ac130003', '2020-04-08 19:45:36.674000','2020-04-03 14:45:36.674000','PAID','1-1-1-123456795', 'Chicken soup (1), Chicken fried steak (1) ', 12.8,1,6,6) on conflict  on constraint transactions_pkey do nothing;
+('b64d866c-798f-11ea-bc55-0242ac130003', '2020-04-08 19:45:36.674000','2020-04-03 14:45:36.674000','PAID','1-1-1-123456795', 'Chicken soup (1), Chicken nuggets (6) ', 12.8,1,6,6) on conflict  on constraint transactions_pkey do nothing;
 
 INSERT INTO public.transactions (id, created_at, updated_at, payment_status, receipt_id, service, total_price, application_user_id, bank_account_id, merchant_id) VALUES
 ('0ccb3fde-7990-11ea-bc55-0242ac130003', '2020-04-03 20:45:36.674000','2020-04-03 14:45:36.674000','PAID','1-1-1-123456796', 'Granny-smith apple (2), Potato ketchup chips (3), Peanut butter (2)', 15.5,1,7,3) on conflict  on constraint transactions_pkey do nothing;
