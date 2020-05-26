@@ -91,8 +91,6 @@ public class MoneyTransferController {
                                                    @CurrentUser UserPrincipal userPrincipal, BindingResult result) {
 
         RequestValidator.validateRequest(result);
-        //najlakse bilo napraviti request pri cemu je id vlasnika oba racuna isti
-        //to je jedina razlika u odnosu na outer
         ApplicationUser user = applicationUserService.find(userPrincipal.getId());
         MoneyTransferRequest moneyTransferRequest = new MoneyTransferRequest(userPrincipal.getId(),moneyTransferInRequest.getSourceBankAccount(),
                 moneyTransferInRequest.getDestinationBankAccount(), moneyTransferInRequest.getAmount());
@@ -115,8 +113,6 @@ public class MoneyTransferController {
                     NotificationType.MONEY_TRANSFER, moneyTransfer.getId().toString(),
                     MessageConstants.FAIL_TRANSFER, applicationUser));
             notificationHandler.sendNotification(notificationFails);
-            //NotificationResponse notificationResponseFail = buildNotificationResponse(notificationFails);
-            //simpMessagingTemplate.convertAndSend( "/queue/reply/"+applicationUser.getUsername(), notificationResponseFail);
             return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Inconsistent data provided!", null);
 
         }
@@ -129,8 +125,6 @@ public class MoneyTransferController {
                     NotificationType.MONEY_TRANSFER, moneyTransfer.getId().toString(),
                     MessageConstants.FAIL_TRANSFER_FUNDS, applicationUser));
             notificationHandler.sendNotification(notificationFails);
-            //NotificationResponse notificationResponseFail = buildNotificationResponse(notificationFails);
-            //simpMessagingTemplate.convertAndSend( "/queue/reply/"+applicationUser.getUsername(), notificationResponseFail);
             return new MoneyTransferResponse(MoneyTransferStatus.CANCELED, "Not enough funds to proceed with transfer!", null);
         }
         dest.putIntoAccount(moneyTransferRequest.getAmount());
@@ -148,14 +142,6 @@ public class MoneyTransferController {
         Notification notificationDest =
                 notificationService.save(new Notification(NotificationStatus.INFO, NotificationType.MONEY_TRANSFER,
                         moneyTransfer.getId().toString(), MessageConstants.SUCCESSFULL_TRANSFER_DEST, userDest));
-        /*
-        NotificationResponse notificationResponse = buildNotificationResponse(notificationSource);
-
-
-        NotificationResponse notificationResponseDest = buildNotificationResponse(notificationDest);
-
-        simpMessagingTemplate.convertAndSend( "/queue/reply/"+applicationUser.getUsername(), notificationResponse);
-        simpMessagingTemplate.convertAndSend( "/queue/reply/"+userDest.getUsername(), notificationResponseDest);*/
         notificationHandler.sendNotification(notificationSource);
         notificationHandler.sendNotification(notificationDest);
 
@@ -194,7 +180,6 @@ public class MoneyTransferController {
 
     @GetMapping("/{transferId}")
     public MoneyTransferResponse getTransferDetails(@PathVariable UUID transferId, @CurrentUser UserPrincipal currentUser){
-        // TODO: 4/30/2020 mozda dodati isto provjere je li mu pripadaju, we shall see.. 
         return moneyTransferService.getTransferInfo(transferId);
     }
 
