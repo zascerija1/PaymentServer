@@ -27,9 +27,6 @@ public class RestService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        //eventualno će se morati header postaviti
-        //todo dodati authorization
-        //saljemo isti onaj primljeni zahtjev
         HttpEntity<StaticQRRequest> request = new HttpEntity<>(staticQRRequest, headers);
          return restTemplate.postForEntity(url, request, MainInfoResponse.class);
     }
