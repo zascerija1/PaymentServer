@@ -227,7 +227,7 @@ public class RestTransactionController {
                 " missing! Please provide one! Try again!");
     }
 
-    //Ipak cemo sa odvojenim rutama
+
     @PostMapping("/static/cancel")
     public PaymentResponse cancelThePaymentStatic(@Valid @RequestBody NotPayQRRequestStatic notPayQRRequestStatic,
                                                   @CurrentUser UserPrincipal userPrincipal, BindingResult result) {
