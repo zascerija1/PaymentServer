@@ -64,4 +64,4 @@ Alternatively see the GitHub documentation on [creating a pull request](https://
 <a href="https://github.com/zascerija1" target="_blank"><img width="100px" height="100px" src="https://github.com/zascerija1.png"></a>
 <a href="https://github.com/dbutkovic1" target="_blank"><img width="100px" height="100px" src="https://github.com/dbutkovic1.png"></a>
 <a href="https://github.com/alakovic1" target="_blank"><img width="100px" height="100px" src="https://github.com/alakovic1.png"></a>
-<a href="https://github.com/amusic5" target="_blank"><img width="100px" height="100px" src="https://github.com/amusic5.png"></a>
+<a href="https://github.com/amusic5" target="_blank"><img width="100px" height="100px" src="https://github.com/amra-music.png"></a>
